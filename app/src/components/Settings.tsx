@@ -50,30 +50,30 @@ function FileSystem({
   setFolderPath: React.Dispatch<React.SetStateAction<string>>;
 }) {
   
-  const data: DirectoryData = { name: "/", type: "dir" }
-
   const container = useRef<HTMLDivElement>(null)
 
   const [selectedFolder, setSelectedFolder] = useState<string>("")
   const root = useRef<Root | null>(null)
 
   useEffect(() => {
-    setTimeout(() => {
-      if (!container.current) return
-      if (!root.current) root.current = createRoot(container.current)
-      root.current.render(
-        <Directory
-          data={data}
-          indent={1}
-          selectedFolder={selectedFolder}
-          setSelectedFolder={setSelectedFolder}
-        />
-      )
-    }, 1000)
+    if (!container.current) return
+    if (!root.current) root.current = createRoot(container.current)
+    fetch(`${import.meta.env.VITE_API_URL}/getDirInfo/root`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }).then(res => {
+      return res.json()
+    }).then(data => {
+      root.current?.render(data.map((entry: DirectoryData, i: number) => {
+        return <Directory key={i} data={entry} indent={1} selectedFolder={selectedFolder} setSelectedFolder={setSelectedFolder} />
+      }))
+    })
   }, [])
 
   return (
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[40vh] min-w-[20vw] bg-white flex flex-col">
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-h-[40vh] min-w-[20vw] bg-white flex flex-col p-5">
       <X
         className="absolute top-0 right-0 cursor-pointer"
         onClick={() => setShowFolderPicker(false)}
