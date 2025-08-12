@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   X,
   ChevronRight,
@@ -6,7 +6,6 @@ import {
   FolderClosed,
   FileText,
 } from "lucide-react";
-import { createRoot, type Root } from "react-dom/client";
 
 export default function Settings() {
   const [showFolderPicker, setShowFolderPicker] = useState<boolean>(false);
@@ -50,14 +49,10 @@ function FileSystem({
   setFolderPath: React.Dispatch<React.SetStateAction<string>>;
 }) {
   
-  const container = useRef<HTMLDivElement>(null)
-
   const [selectedFolder, setSelectedFolder] = useState<string>("")
-  const root = useRef<Root | null>(null)
+  const [rootDirs, setRootDir] = useState<DirectoryData[]>()
 
   useEffect(() => {
-    if (!container.current) return
-    if (!root.current) root.current = createRoot(container.current)
     fetch(`${import.meta.env.VITE_API_URL}/getDirInfo/root`, {
       method: "GET",
       headers: {
@@ -65,10 +60,8 @@ function FileSystem({
       }
     }).then(res => {
       return res.json()
-    }).then(data => {
-      root.current?.render(data.map((entry: DirectoryData, i: number) => {
-        return <Directory key={i} data={entry} indent={1} selectedFolder={selectedFolder} setSelectedFolder={setSelectedFolder} />
-      }))
+    }).then((data : DirectoryData[]) => {
+      setRootDir(data)
     })
   }, [])
 
@@ -79,7 +72,10 @@ function FileSystem({
         onClick={() => setShowFolderPicker(false)}
       />
       <h2 className="text-lg font-bold p-2">Choose a folder:</h2>
-      <div ref={container} className="h-4/6">
+      <div className="h-4/6">
+      {rootDirs && rootDirs?.length > 0 && rootDirs.map(dir => {
+        return <Directory data={dir} indent={1} path={`/${dir.name}`} selectedFolder={selectedFolder} setSelectedFolder={setSelectedFolder} />
+      })}
       </div>
       <button className="self-end mr-5 py-1 p-3 bg-blue-400 rounded-xl text-white" onClick={() => setFolderPath(selectedFolder)} disabled={selectedFolder === ""}>Choose</button>
     </div>
