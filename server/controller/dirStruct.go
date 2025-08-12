@@ -2,11 +2,9 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
-	// "github.com/gorilla/mux"
 )
 
 type DirectoryData struct {
@@ -15,21 +13,32 @@ type DirectoryData struct {
 }
 
 func GetDirInfo(w http.ResponseWriter, r *http.Request) {
-	// vars := mux.Vars(r)
+	
+	dir := r.URL.Query().Get("dir")
 
-	dirInfo, err := os.ReadDir("/")
+	var dirInfo []os.DirEntry
+	var parentPath string
+
+	if dir == "/" {
+		parentPath = "/"
+	} else {
+		parentPath = dir + "/"
+	}
+
+	dirInfo, err := os.ReadDir(parentPath)
 
 	if err != nil {
-		fmt.Fprintln(w, "Internal server error")
+		json.NewEncoder(w).Encode([]string{})
 		return
 	}
+
 
 	var dirs []DirectoryData = []DirectoryData{}
 
 	for _, dir := range dirInfo {
 		entry := DirectoryData{Name: dir.Name()}
 
-		info, err := os.Stat("/" + entry.Name)
+		info, err := os.Stat(parentPath + entry.Name)
 		if err != nil {
 			continue
 		}
@@ -37,8 +46,7 @@ func GetDirInfo(w http.ResponseWriter, r *http.Request) {
 		if info.IsDir() {
 			entry.DirType = "dir"
 		} else {
-			if t, err := getMimeType("/" + entry.Name); err != nil {
-				fmt.Println(err)
+			if t, err := getMimeType(parentPath + entry.Name); err != nil {
 				entry.DirType = "file"
 			} else {
 				entry.DirType = t
@@ -47,6 +55,7 @@ func GetDirInfo(w http.ResponseWriter, r *http.Request) {
 
 		dirs = append(dirs, entry)
 	}
+
 
 	json.NewEncoder(w).Encode(dirs)
 

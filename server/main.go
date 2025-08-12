@@ -16,7 +16,7 @@ func httpServer() {
 
 	router := mux.NewRouter()
 
-	router.HandleFunc("/getDirInfo/{dir}", controller.GetDirInfo).Methods("GET")
+	router.HandleFunc("/getDirInfo", controller.GetDirInfo).Methods("GET")
 
 	fmt.Println("Starting http server....")
 	if err := http.ListenAndServe(":8080", router); err != nil {

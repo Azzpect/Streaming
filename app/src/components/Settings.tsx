@@ -5,6 +5,9 @@ import {
   ChevronDown,
   FolderClosed,
   FileText,
+  Image,
+  Film,
+  File
 } from "lucide-react";
 
 export default function Settings() {
@@ -53,7 +56,7 @@ function FileSystem({
   const [rootDirs, setRootDir] = useState<DirectoryData[]>()
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/getDirInfo/root`, {
+    fetch(`${import.meta.env.VITE_API_URL}/getDirInfo?dir=${"/"}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json"
@@ -66,13 +69,13 @@ function FileSystem({
   }, [])
 
   return (
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-h-[40vh] min-w-[20vw] bg-white flex flex-col p-5">
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-[20vw] bg-white flex flex-col p-5">
       <X
         className="absolute top-0 right-0 cursor-pointer"
         onClick={() => setShowFolderPicker(false)}
       />
       <h2 className="text-lg font-bold p-2">Choose a folder:</h2>
-      <div className="h-4/6">
+      <div className="max-h-[40vh] overflow-y-scroll">
       {rootDirs && rootDirs?.length > 0 && rootDirs.map(dir => {
         return <Directory data={dir} indent={1} path={`/${dir.name}`} selectedFolder={selectedFolder} setSelectedFolder={setSelectedFolder} />
       })}
@@ -90,6 +93,9 @@ type DirectoryData = {
 const Icons: { [key: string]: any } = {
   dir: <FolderClosed />,
   txt: <FileText />,
+  image: <Image />,
+  video: <Film />,
+  file: <File />
 };
 
 function Directory({
@@ -106,11 +112,33 @@ function Directory({
   setSelectedFolder: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const [open, setOpen] = useState<boolean>(false);
+  const [children, setChildren] = useState<DirectoryData[]>()
   path = path ? path : data.name;
 
   function handleOnclick() {
     if (!open) setOpen(true);
+    else return
     if (data.type === "dir") setSelectedFolder(path as string);
+    fetch(`${import.meta.env.VITE_API_URL}/getDirInfo?dir=${path}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }).then(res => {
+      return res.json()
+    }).then((data : DirectoryData[]) => {
+      data.map(item => {
+        const imageReg = new RegExp(/image/gm)
+        const videoReg = new RegExp(/video/gm)
+        const textReg = new RegExp(/text/gm)
+        if (item.type === "dir") item.type = "dir"
+        else if (imageReg.test(item.type)) item.type = "image"
+        else if (videoReg.test(item.type)) item.type = "video"
+        else if (textReg.test(item.type)) item.type = "txt"
+        else item.type = "file"
+      })
+      setChildren(data)
+    })
   }
 
 
@@ -138,6 +166,9 @@ function Directory({
         {Icons[data.type]}
         <p className="text-lg">{data.name}</p>
       </div>
+      {open && children && children?.length > 0 && children.map(dir => {
+        return <Directory data={dir} indent={indent + 1} path={`${path}/${dir.name}`} selectedFolder={selectedFolder} setSelectedFolder={setSelectedFolder} />
+      })}
     </>
   );
 }
