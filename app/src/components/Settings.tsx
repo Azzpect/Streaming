@@ -12,7 +12,8 @@ import {
 
 export default function Settings() {
   const [showFolderPicker, setShowFolderPicker] = useState<boolean>(false);
-  const [folderPath, setFolderPath] = useState<string>("");
+  const [folderPath, setFolderPath] = useState<string>("/videos");
+  const [tempFolderPath, setTempFolderPath] = useState<string>(folderPath)
 
   return (
     <div className="flex flex-col justify-self-center w-4/5 p-10">
@@ -24,7 +25,7 @@ export default function Settings() {
           type="text"
           id="path"
           className="border-white border-2 outline-none py-1 px-3 w-2/4 text-white text-lg"
-          value={folderPath}
+          value={tempFolderPath === folderPath ? folderPath : tempFolderPath}
           readOnly
         />
         <button
@@ -33,11 +34,20 @@ export default function Settings() {
         >
           Choose
         </button>
+        {tempFolderPath !== folderPath && <button
+          className="bg-green-500 text-white p-3 rounded-xl font-bold text-md cursor-pointer"
+          onClick={() => {
+            setFolderPath(tempFolderPath)
+            setShowFolderPicker(false)
+          }}
+        >
+          Save
+        </button>}
       </div>
       {showFolderPicker && (
         <FileSystem
           setShowFolderPicker={setShowFolderPicker}
-          setFolderPath={setFolderPath}
+          setFolderPath={setTempFolderPath}
         />
       )}
     </div>
