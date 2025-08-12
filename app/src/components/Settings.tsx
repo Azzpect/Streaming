@@ -9,6 +9,7 @@ import {
   Film,
   File
 } from "lucide-react";
+import { toast } from "react-toastify";
 
 export default function Settings() {
   const [showFolderPicker, setShowFolderPicker] = useState<boolean>(false);
@@ -39,6 +40,25 @@ export default function Settings() {
           onClick={() => {
             setFolderPath(tempFolderPath)
             setShowFolderPicker(false)
+            fetch(`${import.meta.env.VITE_API_URL}/save/media-path`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                "path": tempFolderPath
+              })
+            }).then(res => {
+              return res.json()
+            }).then(data => {
+              if (data.status === "success") {
+                toast.success(data.message)
+              } else {
+                toast.error(data.message)
+              }
+            }).catch(err => {
+              toast.error((err as Error).message)
+            })
           }}
         >
           Save
