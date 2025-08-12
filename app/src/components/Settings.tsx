@@ -11,10 +11,34 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 
+type UserData = {
+  mediaPath: string
+}
+
 export default function Settings() {
   const [showFolderPicker, setShowFolderPicker] = useState<boolean>(false);
-  const [folderPath, setFolderPath] = useState<string>("/videos");
-  const [tempFolderPath, setTempFolderPath] = useState<string>(folderPath)
+  const [userData, setUserData] = useState<UserData>()
+  const [tempFolderPath, setTempFolderPath] = useState<string>(userData?.mediaPath || "")
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/get-user-data`, {
+      method: "GET",
+      headers: {
+        "Contenty-Type": "application/json"
+      }
+    }).then(res => {
+      return res.json()
+    }).then(data => {
+      if (data.status === "success") {
+        setUserData(data.data)
+      }
+      else toast.error(data.message)
+    })
+  }, [])
+
+  useEffect(() => {
+    setTempFolderPath(userData?.mediaPath || "")
+  }, [userData])
 
   return (
     <div className="flex flex-col justify-self-center w-4/5 p-10">
@@ -26,7 +50,7 @@ export default function Settings() {
           type="text"
           id="path"
           className="border-white border-2 outline-none py-1 px-3 w-2/4 text-white text-lg"
-          value={tempFolderPath === folderPath ? folderPath : tempFolderPath}
+          value={tempFolderPath === userData?.mediaPath ? userData.mediaPath : tempFolderPath}
           readOnly
         />
         <button
@@ -35,10 +59,9 @@ export default function Settings() {
         >
           Choose
         </button>
-        {tempFolderPath !== folderPath && <button
+        {tempFolderPath !== userData?.mediaPath && <button
           className="bg-green-500 text-white p-3 rounded-xl font-bold text-md cursor-pointer"
           onClick={() => {
-            setFolderPath(tempFolderPath)
             setShowFolderPicker(false)
             fetch(`${import.meta.env.VITE_API_URL}/save/media-path`, {
               method: "POST",
@@ -52,6 +75,7 @@ export default function Settings() {
               return res.json()
             }).then(data => {
               if (data.status === "success") {
+                setUserData({...userData, mediaPath: tempFolderPath})
                 toast.success(data.message)
               } else {
                 toast.error(data.message)

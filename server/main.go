@@ -17,6 +17,7 @@ func httpServer() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/getDirInfo", controller.GetDirInfo).Methods("GET")
+	router.HandleFunc("/get-user-data", controller.GetUserData).Methods("GET")
 	router.HandleFunc("/save/media-path", controller.SaveMediaPath).Methods("POST")
 
 	fmt.Println("Starting http server....")
