@@ -53,12 +53,18 @@ export default function Settings() {
           value={tempFolderPath === userData?.mediaPath ? userData.mediaPath : tempFolderPath}
           readOnly
         />
-        <button
+        {tempFolderPath === userData?.mediaPath && <button
           className="bg-purple-950 text-white p-3 rounded-xl font-bold text-md cursor-pointer"
           onClick={() => setShowFolderPicker(true)}
         >
           Choose
-        </button>
+        </button>}
+        {tempFolderPath !== userData?.mediaPath && <button
+          className="bg-purple-950 text-white p-3 rounded-xl font-bold text-md cursor-pointer"
+          onClick={() => setTempFolderPath(userData?.mediaPath as string)}
+        >
+          Cancel
+        </button>}
         {tempFolderPath !== userData?.mediaPath && <button
           className="bg-green-500 text-white p-3 rounded-xl font-bold text-md cursor-pointer"
           onClick={() => {
