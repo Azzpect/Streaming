@@ -1,7 +1,11 @@
-
+import { Play } from "lucide-react"
 
 export default function Home() {
     return (
-        <h2 className="text-white">Home</h2>
+        <>
+        <div>
+            <button className="flex bg-blue-400 p-3 rounded-lg absolute bottom-2 right-2 cursor-pointer"><Play />Scan</button>
+        </div>
+        </>
     )
 }
