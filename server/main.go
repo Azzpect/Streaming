@@ -19,6 +19,7 @@ func httpServer() {
 	router.HandleFunc("/getDirInfo", controller.GetDirInfo).Methods("GET")
 	router.HandleFunc("/get-user-data", controller.GetUserData).Methods("GET")
 	router.HandleFunc("/save/media-path", controller.SaveMediaPath).Methods("POST")
+	router.HandleFunc("/start-processing", controller.ProcessFiles).Methods("GET")
 
 	fmt.Println("Starting http server....")
 	if err := http.ListenAndServe(":8080", router); err != nil {

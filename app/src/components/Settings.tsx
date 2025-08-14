@@ -187,16 +187,6 @@ function Directory({
     }).then(res => {
       return res.json()
     }).then((data : DirectoryData[]) => {
-      data.map(item => {
-        const imageReg = new RegExp(/image/gm)
-        const videoReg = new RegExp(/video/gm)
-        const textReg = new RegExp(/text/gm)
-        if (item.type === "dir") item.type = "dir"
-        else if (imageReg.test(item.type)) item.type = "image"
-        else if (videoReg.test(item.type)) item.type = "video"
-        else if (textReg.test(item.type)) item.type = "txt"
-        else item.type = "file"
-      })
       setChildren(data)
     })
   }

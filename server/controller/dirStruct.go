@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
 )
 
 type DirectoryData struct {
@@ -46,7 +47,7 @@ func GetDirInfo(w http.ResponseWriter, r *http.Request) {
 		if info.IsDir() {
 			entry.DirType = "dir"
 		} else {
-			if t, err := getMimeType(parentPath + entry.Name); err != nil {
+			if t, err := GetMimeType(parentPath + entry.Name); err != nil {
 				entry.DirType = "file"
 			} else {
 				entry.DirType = t
@@ -61,7 +62,7 @@ func GetDirInfo(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func getMimeType(path string) (string, error) {
+func GetMimeType(path string) (string, error) {
 	file, err := os.Open(path)
 
 	if err != nil {
@@ -78,5 +79,47 @@ func getMimeType(path string) (string, error) {
 		return "", err
 	}
 
-	return http.DetectContentType(buf[:n]), nil
+	mimeType := http.DetectContentType(buf[:n])
+
+	matched, err := regexp.MatchString("image", mimeType)
+
+	if err != nil {
+		return "", err
+	}
+
+	if matched {
+		return "image", nil
+	}
+
+	matched, err = regexp.MatchString("video", mimeType)
+
+	if err != nil {
+		return "", err
+	}
+
+	if matched {
+		return "video", nil
+	}
+
+	matched, err = regexp.MatchString("audio", mimeType)
+
+	if err != nil {
+		return "", err
+	}
+
+	if matched {
+		return "audio", nil
+	}
+
+	matched, err = regexp.MatchString("text", mimeType)
+
+	if err != nil {
+		return "", err
+	}
+
+	if matched {
+		return "txt", nil
+	} else {
+		return "file", nil
+	}
 }
