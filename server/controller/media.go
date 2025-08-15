@@ -13,7 +13,26 @@ import (
 
 const mediaDestPath string = "./media"
 
-
+func GetMediaData(w http.ResponseWriter, r *http.Request) {
+	var allData []types.MediaData = []types.MediaData{}
+	encoder := json.NewEncoder(w)
+	if _, err := os.Stat("mediaData.json"); err != nil {
+		os.Create("mediaData.json")
+		encoder.Encode(types.Response{Status: "error", Message: "No data found"})
+		return
+	}
+	jsonData, err := os.ReadFile("mediaData.json")
+	if err != nil {
+		encoder.Encode(types.Response{Status: "error", Message: "Error reading data."})
+		return
+	}
+	err = json.Unmarshal(jsonData, &allData)
+	if err != nil {
+		encoder.Encode(types.Response{Status: "error", Message: "Error decoding data."})
+		return
+	}
+	encoder.Encode(map[string]any{"status": "success", "data": allData})
+}
 
 func ProcessFiles(w http.ResponseWriter, r *http.Request) {
 	if _, err := os.Stat("userData.json"); err != nil {

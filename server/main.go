@@ -21,6 +21,7 @@ func server() {
 	router.HandleFunc("/get-user-data", controller.GetUserData).Methods("GET")
 	router.HandleFunc("/save/media-path", controller.SaveMediaPath).Methods("POST")
 	router.HandleFunc("/start-processing", controller.ProcessFiles).Methods("GET")
+	router.HandleFunc("/get-media-data", controller.GetMediaData).Methods("GET")
 
 	fServer := http.StripPrefix("/media/", http.FileServer(http.Dir("./media")))
 	router.PathPrefix("/media/").Handler(fServer)
