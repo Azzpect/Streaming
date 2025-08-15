@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"streamer/controller"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/handlers"
 )
 
 func main() {
@@ -26,8 +27,15 @@ func server() {
 	fServer := http.StripPrefix("/media/", http.FileServer(http.Dir("./media")))
 	router.PathPrefix("/media/").Handler(fServer)
 
+
+	cors := handlers.CORS(
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowedMethods([]string{"GET", "POST"}),
+		handlers.AllowedHeaders([]string{"Content-Type"}),
+	)
+
 	fmt.Println("Starting server....")
-	if err := http.ListenAndServe(":8080", router); err != nil {
+	if err := http.ListenAndServe(":8080", cors(router)); err != nil {
 		fmt.Println("Error starting server.")
 	}
 

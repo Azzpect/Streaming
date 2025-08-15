@@ -4,19 +4,21 @@ export const MediaDataContext = createContext<MediaDataContextValue | null>(
   null
 );
 
-type Movie = {
+export type Media = {
   name: string;
   thumbnail: string;
   path: string;
 };
 
 type MediaDataContextValue = {
-  allMedia: Movie[];
+  allMedia: Media[];
   fetchAllMedia: () => void;
+  resetAllMedia: () => void;
+  addNewMedia: (media: Media) => void;
 };
 
 export function MediaContextProvider({ children }: { children: ReactNode }) {
-  const [allMedia, setAllMedia] = useState<Movie[]>([]);
+  const [allMedia, setAllMedia] = useState<Media[]>([]);
 
   function fetchAllMedia() {
     fetch(`${import.meta.env.VITE_API_URL}/get-media-data`, {
@@ -28,7 +30,7 @@ export function MediaContextProvider({ children }: { children: ReactNode }) {
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "success") {
-          toast.success("Movies data fetched successfully.");
+          toast.success("Media data fetched successfully.");
           setAllMedia(data.data);
         } else {
           toast.error(data.message);
@@ -36,8 +38,16 @@ export function MediaContextProvider({ children }: { children: ReactNode }) {
       });
   }
 
+  function resetAllMedia() {
+    setAllMedia([])
+  }
+
+  function addNewMedia(media: Media) {
+    setAllMedia(prev => [...prev, media])
+  }
+
   return (
-    <MediaDataContext.Provider value={{allMedia, fetchAllMedia}}>
+    <MediaDataContext.Provider value={{allMedia, fetchAllMedia, resetAllMedia, addNewMedia}}>
       {children}
     </MediaDataContext.Provider>
   );

@@ -113,7 +113,7 @@ func startProcessing(w http.ResponseWriter, path string) {
 
 	type processedMediaData struct {
 		types.Response
-		types.MediaData
+		Media types.MediaData	`json:"media"`
 	}
 
 
@@ -127,7 +127,7 @@ func startProcessing(w http.ResponseWriter, path string) {
 		} else {
 			msg := fmt.Sprintf("%s media is successfully processed", val.mediaData.Name)
 			fmt.Fprintf(w, "data: ")
-			json.NewEncoder(w).Encode(processedMediaData{Response: types.Response{Status: "success", Message: msg}, MediaData: val.mediaData})
+			json.NewEncoder(w).Encode(processedMediaData{Response: types.Response{Status: "success", Message: msg}, Media: val.mediaData})
 			fmt.Fprintf(w, "\n")
 			flusher.Flush()
 			index--
@@ -149,7 +149,7 @@ func saveMediaData(data types.MediaData) error {
 			return err
 		}
 	}
-	allData = append(allData, data)
+	allData = appendMedia(allData, data)
 	jsonData, err := json.MarshalIndent(allData, "", "	")
 	if err != nil {
 		return err
@@ -159,6 +159,16 @@ func saveMediaData(data types.MediaData) error {
 		return err
 	}
 	return nil
+}
+
+func appendMedia(list []types.MediaData, media types.MediaData) []types.MediaData {
+	var newList []types.MediaData = []types.MediaData{}
+	for _, m := range list {
+		if m.Name != media.Name {
+			newList = append(newList, m)
+		}
+	}
+	return append(newList, media)
 }
 
 func processMedia(filepath string, filename string, ch *chan channelData) {

@@ -1,1 +1,15 @@
-@import "tailwindcss"
+@import "tailwindcss";
+
+
+.loading-animation {
+    animation: loading 1s linear infinite;
+}
+
+
+@keyframes loading {
+    from {
+        transform: rotateZ(0deg)
+    } to {
+        transform: rotateZ(360deg);
+    }
+}
