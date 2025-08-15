@@ -43,48 +43,111 @@ func ProcessFiles(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(types.Response{Status: "error", Message: "User data is incomplete."})
 			return
 		}
-		go startProcessing(userData.MediaPath)
-		json.NewEncoder(w).Encode(types.Response{Status: "success", Message: "started processing"})
+		startProcessing(w, userData.MediaPath)
 	}
 }
 
+type channelData struct {
+	mediaData types.MediaData
+	err error
+}
 
-func startProcessing(path string) error {
-	dirInfo, err := os.ReadDir(path)
+func startProcessing(w http.ResponseWriter, path string) {
 
-	if err != nil {
-		return fmt.Errorf("directory doesn't exist")
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	flusher, ok := w.(http.Flusher)
+
+	if !ok {
+		fmt.Fprintf(w, "data: ")
+		json.NewEncoder(w).Encode(types.Response{Status: "error", Message: "streaming is not supported"})
+		fmt.Fprintf(w, "\n")
+		return
 	}
 
-	ch := make(chan error)
+	
+	
+	dirInfo, err := os.ReadDir(path)
+	
+	if err != nil {
+		fmt.Fprintf(w, "data: ")
+		json.NewEncoder(w).Encode(types.Response{Status: "error", Message: "Directory doesn't exist."})
+		fmt.Fprintf(w, "\n")
+		return
+	}
+	
+	fmt.Fprintf(w, "data: ")
+	json.NewEncoder(w).Encode(types.Response{Status: "process", Message: "started processing"})
+	fmt.Fprintf(w, "\n")
+	flusher.Flush()
+	
+
+	ch := make(chan channelData)
 	index := 0
 	for _, item := range dirInfo {
 		go processMedia(path + "/" + item.Name(), strings.Split(item.Name(), ".")[0], &ch)
 		index++
 	}
 
-
-	for index > 0 {
-		val := <- ch
-		if val != nil {
-			fmt.Println("Error occured:", val.Error())
-			break
-		} else {
-			fmt.Println("One media is successfully processed.")
-			index--
-		}
+	type processedMediaData struct {
+		types.Response
+		types.MediaData
 	}
 
 
+	for index > 0 {
+		val := <- ch
+		if val.err != nil {
+			fmt.Fprintf(w, "data: ")
+			json.NewEncoder(w).Encode(types.Response{Status: "error", Message: val.err.Error()})
+			fmt.Fprintf(w, "\n")
+			break
+		} else {
+			msg := fmt.Sprintf("%s media is successfully processed", val.mediaData.Name)
+			fmt.Fprintf(w, "data: ")
+			json.NewEncoder(w).Encode(processedMediaData{Response: types.Response{Status: "success", Message: msg}, MediaData: val.mediaData})
+			fmt.Fprintf(w, "\n")
+			flusher.Flush()
+			index--
+		}
+	}
+}
+
+func saveMediaData(data types.MediaData) error {
+	var allData []types.MediaData = []types.MediaData{}
+	if _, err := os.Stat("mediaData.json"); err != nil {
+		os.Create("mediaData.json")
+	} else {
+		jsonData, err := os.ReadFile("mediaData.json")
+		if err != nil {
+			return err
+		}
+		err = json.Unmarshal(jsonData, &allData)
+		if err != nil {
+			return err
+		}
+	}
+	allData = append(allData, data)
+	jsonData, err := json.MarshalIndent(allData, "", "	")
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile("mediaData.json", jsonData, 0644)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func processMedia(filepath string, filename string, ch *chan error) {
+func processMedia(filepath string, filename string, ch *chan channelData) {
 	dirInfo, err := os.Stat(mediaDestPath)
 
 	if os.IsNotExist(err) || !dirInfo.IsDir() {
 		if err := os.Mkdir(mediaDestPath, 0755); err != nil {
-			*ch <- err
+			*ch <- channelData{mediaData: types.MediaData{}, err: err}
 			return
 		}
 	}
@@ -94,21 +157,47 @@ func processMedia(filepath string, filename string, ch *chan error) {
 	
 	if err == nil {
 		if err := os.RemoveAll(fileDest); err != nil {
-			*ch <- err
+			*ch <- channelData{mediaData: types.MediaData{}, err: err}
 			return
 		}
 	}
 	if err := os.Mkdir(fileDest, 0755); err != nil {
-		*ch <- err
+		*ch <- channelData{mediaData: types.MediaData{}, err: err}
 		return
 	}
 
 	cmd := exec.Command("ffmpeg", "-i", filepath, "-c:v", "libx264", "-c:a", "aac", "-b:a", "128k", "-f", "dash", "-seg_duration", "4", "-use_template", "1", "-use_timeline", "1", fileDest+"/manifest.mpd")
 
 	if err = cmd.Run(); err != nil {
-		*ch <- err
+		*ch <- channelData{mediaData: types.MediaData{}, err: err}
+		if err := os.RemoveAll(fileDest); err != nil {
+			*ch <- channelData{mediaData: types.MediaData{}, err: err}
+			return
+		}
 		return
 	}
 
-	*ch <- nil
+	thumbnail := fileDest + "/thumbnail-" + filename + ".jpg"
+
+	cmd = exec.Command("ffmpeg", "-i", filepath, "-ss", "00:00:10", "-vframes", "1", thumbnail)
+	if err = cmd.Run(); err != nil {
+		*ch <- channelData{mediaData: types.MediaData{}, err: err}
+		if err := os.RemoveAll(fileDest); err != nil {
+			*ch <- channelData{mediaData: types.MediaData{}, err: err}
+			return
+		}
+		return
+	}
+
+	data := types.MediaData{ Name: filename, Thumbnail: thumbnail, Path: fileDest + "/manifest.mpd"}
+	err = saveMediaData(data)
+	if err != nil {
+		*ch <- channelData{mediaData: types.MediaData{}, err: err}
+		if err := os.RemoveAll(fileDest); err != nil {
+			*ch <- channelData{mediaData: types.MediaData{}, err: err}
+			return
+		}
+		return
+	}
+	*ch <- channelData{mediaData: data, err: nil}
 }

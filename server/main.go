@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"net/http"
 	"streamer/controller"
-
 	"github.com/gorilla/mux"
 )
 
 func main() {
-	httpServer()
+
+	server()
+
 }
 
-func httpServer() {
+func server() {
 
 	router := mux.NewRouter()
 
@@ -21,9 +22,12 @@ func httpServer() {
 	router.HandleFunc("/save/media-path", controller.SaveMediaPath).Methods("POST")
 	router.HandleFunc("/start-processing", controller.ProcessFiles).Methods("GET")
 
-	fmt.Println("Starting http server....")
+	fServer := http.StripPrefix("/media/", http.FileServer(http.Dir("./media")))
+	router.PathPrefix("/media/").Handler(fServer)
+
+	fmt.Println("Starting server....")
 	if err := http.ListenAndServe(":8080", router); err != nil {
-		fmt.Println("Error starting http server.")
+		fmt.Println("Error starting server.")
 	}
 
 }
