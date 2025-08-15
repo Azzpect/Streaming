@@ -24,7 +24,7 @@ export default function Settings() {
     fetch(`${import.meta.env.VITE_API_URL}/get-user-data`, {
       method: "GET",
       headers: {
-        "Contenty-Type": "application/json"
+        "Content-Type": "application/json"
       }
     }).then(res => {
       return res.json()

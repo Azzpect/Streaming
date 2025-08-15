@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"streamer/controller"
-	"github.com/gorilla/mux"
+
 	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 )
 
 func main() {
