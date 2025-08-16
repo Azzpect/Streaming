@@ -34,6 +34,7 @@ export function MediaContextProvider({ children }: { children: ReactNode }) {
           setAllMedia(data.data);
         } else {
           toast.error(data.message);
+          setAllMedia([])
         }
       });
   }

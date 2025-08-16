@@ -8,8 +8,6 @@ import (
 	"os/exec"
 	"streamer/types"
 	"strings"
-
-	"github.com/gorilla/mux"
 )
 
 func GetMediaData(w http.ResponseWriter, r *http.Request) {
@@ -69,7 +67,7 @@ func ProcessMedia(w http.ResponseWriter, r *http.Request) {
 				fmt.Println(err)
 				continue
 			}
-			mediaData := types.MediaData{Name: name, Path: "/media/" + item.Name(), Thumbnail: thumbnail }
+			mediaData := types.MediaData{Name: name, Path: "/media/" + item.Name(), Thumbnail: thumbnail}
 			allMediaData = append(allMediaData, mediaData)
 		}
 	}
@@ -84,13 +82,13 @@ func ProcessMedia(w http.ResponseWriter, r *http.Request) {
 		encoder.Encode(types.Response{Status: "error", Message: "Couldn't write media details."})
 		return
 	}
-	encoder.Encode(map[string]any{ "status": "success", "data": allMediaData})
+	encoder.Encode(map[string]any{"status": "success", "data": allMediaData})
 }
 
 func getName(filename string) string {
 	parts := strings.Split(filename, ".")
 	var mediaName string = ""
-	for i := 0; i < len(parts) - 1; i++ {
+	for i := 0; i < len(parts)-1; i++ {
 		mediaName = mediaName + parts[i]
 	}
 	return mediaName
@@ -103,7 +101,7 @@ func getThumbnail(filepath string, filename string) (string, error) {
 		os.Mkdir("./thumbnails", 0755)
 	}
 
-	fileLoc := "./thumbnails/"+filename+"-thumbnail.jpg"
+	fileLoc := "./thumbnails/" + filename + "-thumbnail.jpg"
 
 	cmd := exec.Command("ffmpeg", "-i", filepath, "-ss", "00:00:10", "-vframes", "1", fileLoc)
 	err = cmd.Run()
@@ -115,36 +113,4 @@ func getThumbnail(filepath string, filename string) (string, error) {
 }
 
 
-func StartMediaServer() {
 
-	var userData types.UserData
-
-	jsonData, err := os.ReadFile("userData.json")
-	if err != nil {
-		fmt.Println("Error reading user data file.")
-		return
-	}
-	err = json.Unmarshal(jsonData, &userData)
-	if err != nil {
-		fmt.Println("Error decoding user data file.")
-		return
-	}
-
-	if strings.Trim(userData.MediaPath, " ") == "" {
-		fmt.Println("Wrong file path.")
-		return
-	}
-
-	router := mux.NewRouter()
-
-	mediaHandler := http.StripPrefix("/media/", http.FileServer(http.Dir(userData.MediaPath)))
-	router.PathPrefix("/media/").Handler(mediaHandler)
-
-	thumbnailHandler := http.StripPrefix("/thumbnails/", http.FileServer(http.Dir("./thumbnails")))
-	router.PathPrefix("/thumbnails/").Handler(thumbnailHandler)
-
-	fmt.Println("Starting file server....")
-	if err := http.ListenAndServe(":8100", router); err != nil {
-		fmt.Println("Error starting file server.")
-	}
-}

@@ -2,8 +2,10 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
+	"streamer/mediaserver"
 	"streamer/types"
 )
 
@@ -40,20 +42,28 @@ func SaveMediaPath(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	
 	userData.MediaPath = data.MediaPath
 	jsonData, err := json.MarshalIndent(userData, "", "	");
 	if err != nil {
 		json.NewEncoder(w).Encode(types.Response{Status: "error", Message: "Error encoding user data."})
 		return
 	}
-
+	
 	if err := os.WriteFile("userData.json", jsonData, 0644); err != nil {
 		json.NewEncoder(w).Encode(types.Response{Status: "error", Message: "Error saving user data."})
 		return
 	}
-
+	
 	json.NewEncoder(w).Encode(types.Response{Status: "success", Message: "User preference saved."})
+	
+	fmt.Println("Removing existing media data.")
+	os.Remove("mediaData.json")
+	fmt.Println("Removing thumbnails.")
+	os.RemoveAll("./thumbnails")
 
+	fmt.Println("Restarting media server...")
+	go mediaserver.StartMediaServer()
 }
 
 func GetUserData(w http.ResponseWriter, r *http.Request) {
