@@ -22,12 +22,8 @@ func server() {
 	router.HandleFunc("/getDirInfo", controller.GetDirInfo).Methods("GET")
 	router.HandleFunc("/get-user-data", controller.GetUserData).Methods("GET")
 	router.HandleFunc("/save/media-path", controller.SaveMediaPath).Methods("POST")
-	router.HandleFunc("/start-processing", controller.ProcessFiles).Methods("GET")
 	router.HandleFunc("/get-media-data", controller.GetMediaData).Methods("GET")
-
-	fServer := http.StripPrefix("/media/", http.FileServer(http.Dir("./media")))
-	router.PathPrefix("/media/").Handler(fServer)
-
+	router.HandleFunc("/process-media", controller.ProcessMedia).Methods("GET")
 
 	cors := handlers.CORS(
 		handlers.AllowedOrigins([]string{"*"}),
@@ -35,9 +31,11 @@ func server() {
 		handlers.AllowedHeaders([]string{"Content-Type"}),
 	)
 
+	go controller.StartMediaServer()
+
 	fmt.Println("Starting server....")
 	if err := http.ListenAndServe(":8080", cors(router)); err != nil {
-		fmt.Println("Error starting server.")
+		fmt.Println("Error starting server.", err)
 	}
 
 }

@@ -1,6 +1,11 @@
 @import "tailwindcss";
 
 
+
+.active-movie-icon {
+    @apply scale-110;
+}
+
 .loading-animation {
     animation: loading 1s linear infinite;
 }

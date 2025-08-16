@@ -6,56 +6,29 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function Home() {
-  const { allMedia, fetchAllMedia, addNewMedia, resetAllMedia } =
+  const { allMedia, fetchAllMedia, updateMediaList, resetAllMedia } =
     useContext(MediaDataContext)!;
   const [loading, setLoading] = useState<boolean>(false);
 
-  async function listenSSE() {
-    setLoading(true);
-    resetAllMedia();
+  function startMediaProcessing() {
+    setLoading(true)
+    resetAllMedia()
     try {
-      const url = `${import.meta.env.VITE_API_URL}/start-processing`;
-      const response = await fetch(url, {
+      fetch(`${import.meta.env.VITE_API_URL}/process-media`, {
         method: "GET",
         headers: {
-          Accept: "text/event-stream",
-        },
-      });
-
-      if (!response.body) {
-        throw new Error("ReadableStream not supported in this browser.");
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let buffer = "";
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-
-        const parts = buffer.split("\n\n");
-        buffer = parts.pop() || "";
-
-        for (const part of parts) {
-          if (part.startsWith("data:")) {
-            const message = part.replace(/^data:\s*/, "").trim();
-            const data = JSON.parse(message);
-            if (data.status === "error") toast.error(data.message);
-            else if (data.status === "process") toast.info(data.message)
-            else {
-              toast.success(data.message);
-              addNewMedia(data.media);
-            }
-          }
+          "Content-Type": "application/json"
         }
-      }
+      }).then(res => res.json())
+      .then(data => {
+        if (data.status === "error") throw new Error(data.message)
+        updateMediaList(data.data)
+        toast.success("Media processed successfully")
+      })
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error((err as Error).message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
@@ -69,7 +42,7 @@ export default function Home() {
         {!loading ? (
           <button
             className="flex items-center bg-blue-400 p-3 rounded-lg absolute bottom-2 right-2 cursor-pointer"
-            onClick={listenSSE}
+            onClick={startMediaProcessing}
           >
             <Play />
             Scan
@@ -80,7 +53,7 @@ export default function Home() {
             Scanning
           </button>
         )}
-        <section className={`flex gap-2 items-center ${allMedia.length === 0 ? "justify-center" : ""}`}>
+        <section className="flex gap-2 items-center justify-center pt-10">
           {allMedia.length === 0 ? <p className="font-bold text-white text-xl self-center">No media files found</p> : allMedia.filter((m): m is Media => m !== undefined && m !== null).map((movie, i) => (
             <MovieCard
               key={i}
@@ -108,11 +81,11 @@ function MovieCard({
 
   return (
     <div
-      className="flex flex-col w-60 h-70 p-3 items-center cursor-pointer"
+      className={`flex flex-col w-60 h-70 p-3 items-center cursor-pointer ${index === 0 ? "active-movie-icon" : ""}`}
       onClick={() => navigate(`/player?id=${index}`)}
     >
       <img
-        src={new URL(thumbnail, import.meta.env.VITE_API_URL).href}
+        src={new URL(thumbnail, import.meta.env.VITE_MEDIA_URL).href}
         alt={name}
         className="w-4/5 h-4/5"
       />

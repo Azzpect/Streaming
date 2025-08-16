@@ -14,7 +14,7 @@ type MediaDataContextValue = {
   allMedia: Media[];
   fetchAllMedia: () => void;
   resetAllMedia: () => void;
-  addNewMedia: (media: Media) => void;
+  updateMediaList: (list: Media[]) => void;
 };
 
 export function MediaContextProvider({ children }: { children: ReactNode }) {
@@ -42,12 +42,12 @@ export function MediaContextProvider({ children }: { children: ReactNode }) {
     setAllMedia([])
   }
 
-  function addNewMedia(media: Media) {
-    setAllMedia(prev => [...prev, media])
+  function updateMediaList(list: Media[]) {
+    setAllMedia(list)
   }
 
   return (
-    <MediaDataContext.Provider value={{allMedia, fetchAllMedia, resetAllMedia, addNewMedia}}>
+    <MediaDataContext.Provider value={{allMedia, fetchAllMedia, resetAllMedia, updateMediaList}}>
       {children}
     </MediaDataContext.Provider>
   );
