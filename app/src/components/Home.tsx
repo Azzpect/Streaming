@@ -109,7 +109,7 @@ function MediaCard({ i, name, thumbnail, setOffset, activeCard, setActiveCard, w
   return (
     <div ref={child} className={`w-45 h-60 flex flex-col items-center justify-center cursor-pointer transition-transform duration-300 ease-liear`} onClick={slide}>
       <img
-        src={new URL(thumbnail, import.meta.env.VITE_MEDIA_URL).href}
+        src={thumbnail}
         alt={name}
         className="w-full h-full"
       />
