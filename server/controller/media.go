@@ -3,9 +3,10 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"os"
-	"os/exec"
 	"streamer/types"
 	"strings"
 )
@@ -60,14 +61,17 @@ func ProcessMedia(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if mimeType == "image" || mimeType == "video" {
-			name := getName(item.Name())
-			path := userData.MediaPath + "/" + item.Name()
-			thumbnail, err := getThumbnail(path, name)
+			nameYear, err := getNameAndYear(item.Name())
 			if err != nil {
 				fmt.Println(err)
 				continue
 			}
-			mediaData := types.MediaData{Name: name, Path: "/media/" + item.Name(), Thumbnail: thumbnail}
+			thumbnail, err := getThumbnail(nameYear)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+			mediaData := types.MediaData{Name: nameYear["name"], Path: "/media/" + item.Name(), Thumbnail: thumbnail}
 			allMediaData = append(allMediaData, mediaData)
 		}
 	}
@@ -85,31 +89,46 @@ func ProcessMedia(w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(map[string]any{"status": "success", "data": allMediaData})
 }
 
-func getName(filename string) string {
+func getNameAndYear(filename string) (map[string]string, error) {
 	parts := strings.Split(filename, ".")
-	var mediaName string = ""
-	for i := 0; i < len(parts)-1; i++ {
-		mediaName = mediaName + parts[i]
+	if len(parts) < 3 {
+		return nil, fmt.Errorf("not enough data")
 	}
-	return mediaName
+	return map[string]string { "name": parts[0], "year": parts[1]}, nil
 }
 
-func getThumbnail(filepath string, filename string) (string, error) {
+func getThumbnail(nameYear map[string]string) (string, error) {
 
-	_, err := os.ReadDir("./thumbnails")
-	if os.IsNotExist(err) {
-		os.Mkdir("./thumbnails", 0755)
-	}
+	api_url := os.Getenv("API_URL")
+	api_key := os.Getenv("API_KEY")
+	res, err := http.Get(api_url+"/?apikey="+api_key+"&t="+url.QueryEscape(nameYear["name"])+"&y="+url.QueryEscape(nameYear["year"]))
 
-	fileLoc := "./thumbnails/" + filename + "-thumbnail.jpg"
-
-	cmd := exec.Command("ffmpeg", "-i", filepath, "-ss", "00:00:10", "-vframes", "1", fileLoc)
-	err = cmd.Run()
 	if err != nil {
 		return "", err
 	}
 
-	return fileLoc, nil
+	defer res.Body.Close()
+
+	var data map[string]any
+
+	body, err := io.ReadAll(res.Body)
+
+	if err != nil {
+		return "", err
+	}
+
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return "", err
+	}
+
+	poster, ok := data["Poster"].(string)
+	if !ok {
+		return "", fmt.Errorf("wrong poster data")
+	}
+
+	return poster, nil
+
 }
 
 

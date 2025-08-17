@@ -1,8 +1,8 @@
 import { Play } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { MediaDataContext } from "../context/MediaDataContext";
 import type { Media } from "../context/MediaDataContext";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function Home() {
@@ -11,24 +11,25 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(false);
 
   function startMediaProcessing() {
-    setLoading(true)
-    resetAllMedia()
+    setLoading(true);
+    resetAllMedia();
     try {
       fetch(`${import.meta.env.VITE_API_URL}/process-media`, {
         method: "GET",
         headers: {
-          "Content-Type": "application/json"
-        }
-      }).then(res => res.json())
-      .then(data => {
-        if (data.status === "error") throw new Error(data.message)
-        updateMediaList(data.data)
-        toast.success("Media processed successfully")
+          "Content-Type": "application/json",
+        },
       })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === "error") throw new Error(data.message);
+          updateMediaList(data.data);
+          toast.success("Media processed successfully");
+        });
     } catch (err) {
-      toast.error((err as Error).message)
+      toast.error((err as Error).message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -38,7 +39,7 @@ export default function Home() {
 
   return (
     <>
-      <div>
+      <div className="flex justify-center items-center w-full h-full overflow-hidden">
         {!loading ? (
           <button
             className="flex items-center bg-blue-400 p-3 rounded-lg absolute bottom-2 right-2 cursor-pointer"
@@ -53,43 +54,62 @@ export default function Home() {
             Scanning
           </button>
         )}
-        <section className="flex gap-2 items-center justify-center pt-10">
-          {allMedia.length === 0 ? <p className="font-bold text-white text-xl self-center">No media files found</p> : allMedia.filter((m): m is Media => m !== undefined && m !== null).map((movie, i) => (
-            <MovieCard
-              key={i}
-              index={i}
-              name={movie.name}
-              thumbnail={movie.thumbnail}
-            />
-          ))}
-        </section>
+        <Slider mediaList={allMedia} />
       </div>
     </>
   );
 }
 
-function MovieCard({
-  index,
-  name,
-  thumbnail,
-}: {
-  index: number;
-  name: string;
-  thumbnail: string;
-}) {
-  const navigate = useNavigate();
+function Slider({ mediaList }: { mediaList: Media[] }) {
+  const window = useRef<HTMLElement>(null)
+  const slider = useRef<HTMLDivElement>(null)
+  const [offset, setOffset] = useState<number>(0)
+  const [activeCard, setActiveCard] = useState<number>(0)
+
+  useEffect(() => {
+    if (!slider.current) return
+    slider.current.style.translate = `${offset}px 0`
+  }, [offset])
 
   return (
-    <div
-      className={`flex flex-col w-60 h-70 p-3 items-center cursor-pointer ${index === 0 ? "active-movie-icon" : ""}`}
-      onClick={() => navigate(`/player?id=${index}`)}
-    >
+    <section ref={window} className="w-full h-4/5 overflow-hidden relative">
+      <div ref={slider} className="flex items-center h-full gap-20 absolute top-0 left-0 transition-transform duration-300 ease-linear">
+        {
+          mediaList.map((m, i) => <MediaCard key={i} name={m.name} thumbnail={m.thumbnail} i={i}  activeCard={activeCard} setActiveCard={setActiveCard} setOffset={setOffset} window={window} />)
+        }
+      </div>
+    </section>
+  )
+}
+
+function MediaCard({ i, name, thumbnail, setOffset, activeCard, setActiveCard, window }: { i : number, name: string, thumbnail: string, activeCard: number, setActiveCard: React.Dispatch<React.SetStateAction<number>>, setOffset: React.Dispatch<React.SetStateAction<number>>, window: React.RefObject<HTMLElement | null>}) {
+
+  const child = useRef<HTMLDivElement>(null)
+
+  function slide() {
+    if (!window.current) return
+    if (!child.current) return
+    const windowRect = window.current.getBoundingClientRect()
+    const childRect = child.current.getBoundingClientRect()
+    const distance = (windowRect.left + windowRect.width / 2) - (childRect.left + childRect.width / 2)
+    setOffset(prev => prev + distance)
+    setActiveCard(i)
+  }
+
+  useEffect(() => {
+    if (!child.current) return
+    if (activeCard === i) child.current.style.zIndex = "5"
+    child.current.style.scale = `${150 - (Math.abs(activeCard - i) * 20)}%`
+  }, [activeCard])
+
+  return (
+    <div ref={child} className={`w-45 h-60 flex flex-col items-center justify-center cursor-pointer transition-transform duration-300 ease-liear`} onClick={slide}>
       <img
         src={new URL(thumbnail, import.meta.env.VITE_MEDIA_URL).href}
         alt={name}
-        className="w-4/5 h-4/5"
+        className="w-full h-full"
       />
-      <h2 className="text-white font-bold text-lg text-center">{name}</h2>
+      {/* <h2 className="text-white font-bold text-lg text-center">{name}</h2> */}
     </div>
-  );
+  )
 }

@@ -27,3 +27,4 @@ dist-ssr
 *.mp4
 *.json
 thumbnails
+.env
