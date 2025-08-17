@@ -64,16 +64,20 @@ function Slider({ mediaList }: { mediaList: Media[] }) {
   const window = useRef<HTMLElement>(null)
   const slider = useRef<HTMLDivElement>(null)
   const [offset, setOffset] = useState<number>(0)
-  const [activeCard, setActiveCard] = useState<number>(0)
+  const [activeCard, setActiveCard] = useState<number>(mediaList.length / 2)
 
   useEffect(() => {
     if (!slider.current) return
     slider.current.style.translate = `${offset}px 0`
   }, [offset])
 
+  useEffect(() => {
+    setActiveCard(mediaList.length / 2)
+  }, [mediaList])
+
   return (
     <section ref={window} className="w-full h-4/5 overflow-hidden relative">
-      <div ref={slider} className="flex items-center h-full gap-20 absolute top-0 left-0 transition-transform duration-300 ease-linear">
+      <div ref={slider} className="flex items-center h-full gap-20 absolute top-0 left-1/3 -translate-x-1/2 transition-transform duration-300 ease-linear">
         {
           mediaList.map((m, i) => <MediaCard key={i} name={m.name} thumbnail={m.thumbnail} i={i}  activeCard={activeCard} setActiveCard={setActiveCard} setOffset={setOffset} window={window} />)
         }
