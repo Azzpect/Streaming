@@ -4,6 +4,7 @@ import { MediaDataContext } from "../context/MediaDataContext";
 import type { Media } from "../context/MediaDataContext";
 // import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const { allMedia, fetchAllMedia, updateMediaList, resetAllMedia } =
@@ -89,10 +90,12 @@ function Slider({ mediaList }: { mediaList: Media[] }) {
 function MediaCard({ i, name, thumbnail, setOffset, activeCard, setActiveCard, window }: { i : number, name: string, thumbnail: string, activeCard: number, setActiveCard: React.Dispatch<React.SetStateAction<number>>, setOffset: React.Dispatch<React.SetStateAction<number>>, window: React.RefObject<HTMLElement | null>}) {
 
   const child = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   function slide() {
     if (!window.current) return
     if (!child.current) return
+    if (activeCard === i) navigate("/player?id="+i)
     const windowRect = window.current.getBoundingClientRect()
     const childRect = child.current.getBoundingClientRect()
     const distance = (windowRect.left + windowRect.width / 2) - (childRect.left + childRect.width / 2)
