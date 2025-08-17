@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"runtime"
 	"streamer/types"
 	"strings"
 )
@@ -151,7 +152,14 @@ func generateThumbnail(filepath string, filename string) (string, error) {
 		os.Mkdir("thumbnails", 0755)
 	}
 	thumbnailPath := "thumbnails/"+filename+"-thumbnail.jpg"
-	cmd := exec.Command("ffmpeg", "-i", filepath, "-ss", "00:00:10", "-vframes", "1", thumbnailPath)
+
+	var cmd *exec.Cmd
+
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("./bin/ffmpeg.exe", "-i", filepath, "-ss", "00:00:10", "-vframes", "1", thumbnailPath)
+	} else {
+		cmd = exec.Command("./bin/ffmpeg", "-i", filepath, "-ss", "00:00:10", "-vframes", "1", thumbnailPath)
+	}
 
 	err = cmd.Run()
 
