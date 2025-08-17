@@ -30,3 +30,5 @@ thumbnails
 .env
 web
 prod
+linuxprod
+winprod
