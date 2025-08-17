@@ -59,8 +59,8 @@ func ProcessMedia(w http.ResponseWriter, r *http.Request) {
 	for _, item := range dirInfo {
 		mimeType, err := GetMimeType(userData.MediaPath + "/" + item.Name())
 		if err != nil {
-			encoder.Encode(types.Response{Status: "error", Message: "Couldn't decode the mimetype of the file."})
-			return
+			fmt.Println("Couldn't decode the mimetype of the file.", err)
+			continue
 		}
 		if mimeType == "image" || mimeType == "video" {
 			nameYear, err := getNameAndYear(item.Name())
