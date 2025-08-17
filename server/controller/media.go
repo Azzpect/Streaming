@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"streamer/types"
 	"strings"
 )
@@ -62,14 +63,26 @@ func ProcessMedia(w http.ResponseWriter, r *http.Request) {
 		}
 		if mimeType == "image" || mimeType == "video" {
 			nameYear, err := getNameAndYear(item.Name())
+			var thumbnail string
 			if err != nil {
-				fmt.Println(err)
-				continue
-			}
-			thumbnail, err := getThumbnail(nameYear)
-			if err != nil {
-				fmt.Println(err)
-				continue
+				filename := item.Name()
+				filepath := userData.MediaPath + "/" + filename
+				thumbnail, err = generateThumbnail(filepath, filename)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+			} else {
+				thumbnail, err = getThumbnail(nameYear)
+				if err != nil {
+					filename := item.Name()
+					filepath := userData.MediaPath + "/" + filename
+					thumbnail, err = generateThumbnail(filepath, filename)
+					if err != nil {
+						fmt.Println(err)
+						continue
+					}
+				}
 			}
 			mediaData := types.MediaData{Name: nameYear["name"], Path: "/media/" + item.Name(), Thumbnail: thumbnail}
 			allMediaData = append(allMediaData, mediaData)
@@ -131,5 +144,21 @@ func getThumbnail(nameYear map[string]string) (string, error) {
 
 }
 
+func generateThumbnail(filepath string, filename string) (string, error) {
 
+	_, err := os.ReadDir("thumbnails")
+	if os.IsNotExist(err) {
+		os.Mkdir("thumbnails", 0755)
+	}
+	thumbnailPath := "thumbnails/"+filename+"-thumbnail.jpg"
+	cmd := exec.Command("ffmpeg", "-i", filepath, "-ss", "00:00:10", "-vframes", "1", thumbnailPath)
+
+	err = cmd.Run()
+
+	if err != nil {
+		return "", err
+	}
+
+	return thumbnailPath, nil
+}
 

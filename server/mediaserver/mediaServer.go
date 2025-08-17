@@ -46,6 +46,9 @@ func StartMediaServer() {
 	mediaHandler := http.StripPrefix("/media/", http.FileServer(http.Dir(userData.MediaPath)))
 	router.PathPrefix("/media/").Handler(mediaHandler)
 
+	thumbnailHandler := http.StripPrefix("/thumbnails/", http.FileServer(http.Dir("./thumbnails")))
+	router.PathPrefix("/thumbnails/").Handler(thumbnailHandler)
+
 	fmt.Println("Starting file server....")
 	mediaServerInstance = &http.Server{
 		Addr:    ":8100",

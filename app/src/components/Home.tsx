@@ -54,7 +54,7 @@ export default function Home() {
             Scanning
           </button>
         )}
-        <Slider mediaList={allMedia} />
+        {allMedia.length === 0 ? <p className="font-bold text-white text-xl text-center">No media found</p> : <Slider mediaList={allMedia} />}
       </div>
     </>
   );
@@ -79,23 +79,25 @@ function Slider({ mediaList }: { mediaList: Media[] }) {
     <section ref={window} className="w-full h-4/5 overflow-hidden relative">
       <div ref={slider} className="flex items-center h-full gap-20 absolute top-0 left-1/3 -translate-x-1/2 transition-transform duration-300 ease-linear">
         {
-          mediaList.map((m, i) => <MediaCard key={i} name={m.name} thumbnail={m.thumbnail} i={i}  activeCard={activeCard} setActiveCard={setActiveCard} setOffset={setOffset} window={window} />)
+          mediaList.map((m, i) => <MediaCard key={i} name={m.name} thumbnail={m.thumbnail} i={i}  activeCard={activeCard} setActiveCard={setActiveCard} setOffset={setOffset} windowObj={window} />)
         }
       </div>
     </section>
   )
 }
 
-function MediaCard({ i, name, thumbnail, setOffset, activeCard, setActiveCard, window }: { i : number, name: string, thumbnail: string, activeCard: number, setActiveCard: React.Dispatch<React.SetStateAction<number>>, setOffset: React.Dispatch<React.SetStateAction<number>>, window: React.RefObject<HTMLElement | null>}) {
+function MediaCard({ i, name, thumbnail, setOffset, activeCard, setActiveCard, windowObj }: { i : number, name: string, thumbnail: string, activeCard: number, setActiveCard: React.Dispatch<React.SetStateAction<number>>, setOffset: React.Dispatch<React.SetStateAction<number>>, windowObj: React.RefObject<HTMLElement | null>}) {
 
   const child = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
+  const parts = window.location.href.split(":")
+  const MEDIA_URL = "http:" + parts.filter((_, i) => i !== parts.length - 1 && i !== 0).join("")+":8100"
 
   function slide() {
-    if (!window.current) return
+    if (!windowObj.current) return
     if (!child.current) return
     if (activeCard === i) navigate("/player?id="+i)
-    const windowRect = window.current.getBoundingClientRect()
+    const windowRect = windowObj.current.getBoundingClientRect()
     const childRect = child.current.getBoundingClientRect()
     const distance = (windowRect.left + windowRect.width / 2) - (childRect.left + childRect.width / 2)
     setOffset(prev => prev + distance)
@@ -111,7 +113,7 @@ function MediaCard({ i, name, thumbnail, setOffset, activeCard, setActiveCard, w
   return (
     <div ref={child} className={`w-45 h-60 flex flex-col items-center justify-center cursor-pointer transition-transform duration-300 ease-liear`} onClick={slide}>
       <img
-        src={thumbnail}
+        src={new URL(thumbnail, MEDIA_URL).href}
         alt={name}
         className="w-full h-full"
       />
