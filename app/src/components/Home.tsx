@@ -2,7 +2,6 @@ import { Play } from "lucide-react";
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { MediaDataContext } from "../context/MediaDataContext";
 import type { Media } from "../context/MediaDataContext";
-// import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -65,7 +64,7 @@ function Slider({ mediaList }: { mediaList: Media[] }) {
   const window = useRef<HTMLElement>(null)
   const slider = useRef<HTMLDivElement>(null)
   const [offset, setOffset] = useState<number>(0)
-  const [activeCard, setActiveCard] = useState<number>(mediaList.length / 2)
+  const [activeCard, setActiveCard] = useState<number>(Math.floor(mediaList.length / 2))
 
   useEffect(() => {
     if (!slider.current) return
@@ -73,7 +72,7 @@ function Slider({ mediaList }: { mediaList: Media[] }) {
   }, [offset])
 
   useEffect(() => {
-    setActiveCard(mediaList.length / 2)
+    setActiveCard(Math.floor(mediaList.length / 2))
   }, [mediaList])
 
   return (
