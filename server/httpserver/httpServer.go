@@ -14,6 +14,10 @@ import (
 func StartHTTPServer() {
 	router := mux.NewRouter()
 
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/index.html")
+	})
+
 	router.HandleFunc("/getDirInfo", controller.GetDirInfo).Methods("GET")
 	router.HandleFunc("/get-user-data", controller.GetUserData).Methods("GET")
 	router.HandleFunc("/save/media-path", controller.SaveMediaPath).Methods("POST")
@@ -25,6 +29,9 @@ func StartHTTPServer() {
 		handlers.AllowedMethods([]string{"GET", "POST"}),
 		handlers.AllowedHeaders([]string{"Content-Type"}),
 	)
+
+	staticHandler := http.StripPrefix("/assets/", http.FileServer(http.Dir("./web/assets")))
+	router.PathPrefix("/assets/").Handler(staticHandler)
 
 	fmt.Println("Starting http server....")
 	if err := http.ListenAndServe(":8080", cors(router)); err != nil {
