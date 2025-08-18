@@ -41,7 +41,7 @@ export default function Settings() {
   }, [userData])
 
   return (
-    <div className="flex flex-col justify-self-center w-4/5 p-10">
+    <div className="flex flex-col justify-self-center w-4/5 h-screen p-10">
       <label htmlFor="path" className="text-lg text-white self-start">
         Your movies directory:
       </label>

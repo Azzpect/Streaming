@@ -38,20 +38,9 @@ function MainContent() {
   const [page, setPage] = useState<"home" | "settings">("home");
 
   return (
-    <div className="w-screen h-screen grid grid-rows-[12vh_1fr]">
+    <div className="w-screen grid grid-rows-[12vh_1fr]">
       <Navbar setPage={setPage} />
-      {page === "home" && 
-      <section className="flex flex-col items-center">
-        <Home />
-        <div className="flex flex-col items-center cursor-pointer">
-          <p className="text-white text-lg font-bold">All Files</p>
-          <div>
-            <div className="w-3 h-3 border-t-3 border-t-white border-r-3 border-r-white rotate-135 arrow-bounce"></div>
-            <div className="w-3 h-3 border-t-3 border-t-[#83E2F5] border-r-3 border-r-[#83E2F5] rotate-135 arrow-bounce"></div>
-          </div>
-        </div>
-      </section>
-      }
+      {page === "home" && <Home />}
       {page === "settings" && <Settings />}
     </div>
   );
