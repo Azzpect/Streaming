@@ -5,11 +5,23 @@
     animation: loading 1s linear infinite;
 }
 
+.arrow-bounce {
+    animation: arrow-bounce 600ms linear infinite;
+}
+
 
 @keyframes loading {
     from {
         transform: rotateZ(0deg)
     } to {
         transform: rotateZ(360deg);
+    }
+}
+
+@keyframes arrow-bounce {
+    from {
+        translate: 0 5px;
+    } to {
+        translate: 0 10px;
     }
 }

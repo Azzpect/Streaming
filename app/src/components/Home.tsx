@@ -37,7 +37,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex justify-center items-center w-full h-full overflow-hidden">
+      <div className="flex justify-center items-center w-full h-[80%] overflow-hidden">
         {loading ? (
           <div className="absolute bottom-10 right-10 w-20 h-20 rounded-full flex items-center justify-center loader">
             <div className="w-[80%] h-[80%] bg-[#141212] rounded-full"></div>
