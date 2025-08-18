@@ -1,9 +1,9 @@
-import { Play } from "lucide-react";
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { MediaDataContext } from "../context/MediaDataContext";
 import type { Media } from "../context/MediaDataContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import Scanner from "../assets/scanner.svg";
 
 export default function Home() {
   const { allMedia, fetchAllMedia, updateMediaList, resetAllMedia } =
@@ -38,19 +38,16 @@ export default function Home() {
   return (
     <>
       <div className="flex justify-center items-center w-full h-full overflow-hidden">
-        {!loading ? (
-          <button
-            className="flex items-center bg-blue-400 p-3 rounded-lg absolute bottom-2 right-2 cursor-pointer"
-            onClick={startMediaProcessing}
-          >
-            <Play />
-            Scan
-          </button>
+        {loading ? (
+          <div className="absolute bottom-10 right-10 w-20 h-20 rounded-full flex items-center justify-center loader">
+            <div className="w-[80%] h-[80%] bg-[#141212] rounded-full"></div>
+          </div>
         ) : (
-          <button className="flex bg-blue-400 p-3 rounded-lg absolute bottom-2 right-2 cursor-pointer items-center gap-2">
-            <div className="w-5 h-5 border-2 rounded-full border-b-transparent loading-animation"></div>
-            Scanning
-          </button>
+          <img
+            src={Scanner}
+            className="absolute bottom-10 right-10 cursor-pointer"
+            onClick={startMediaProcessing}
+          />
         )}
         {allMedia.length === 0 ? (
           <p className="font-bold text-white text-xl text-center">
@@ -78,14 +75,18 @@ function Slider({ mediaList }: { mediaList: Media[] }) {
   }, [offset]);
 
   useEffect(() => {
-    setActiveCard(Math.floor(mediaList.length / 2));
-  }, [mediaList]);
+    if (!slider.current || !window.current) return
+    const sliderRect = slider.current.getBoundingClientRect()
+    const windowRect = window.current.getBoundingClientRect()
+    const distance = windowRect.left + windowRect.width / 2 - (sliderRect.left + sliderRect.width / 2)
+    setOffset(distance)
+  }, [mediaList])
 
   return (
     <section ref={window} className="w-full h-4/5 overflow-hidden relative">
       <div
         ref={slider}
-        className="flex items-center h-full gap-20 absolute top-0 left-1/3 -translate-x-1/2 transition-transform duration-300 ease-linear"
+        className="flex items-center h-full gap-20 absolute top-0 left-1/2 -translate-x-1/2 transition-transform duration-300 ease-linear"
       >
         {mediaList.map((m, i) => (
           <MediaCard
@@ -145,7 +146,9 @@ function MediaCard({
 
   useEffect(() => {
     if (!child.current) return;
-    if (activeCard === i) child.current.style.zIndex = "5";
+    if (activeCard === i) {
+      child.current.style.zIndex = "5";
+    }
     child.current.style.scale = `${150 - Math.abs(activeCard - i) * 20}%`;
   }, [activeCard]);
 
@@ -160,7 +163,6 @@ function MediaCard({
         alt={name}
         className="w-full h-full"
       />
-      {/* <h2 className="text-white font-bold text-lg text-center">{name}</h2> */}
     </div>
   );
 }

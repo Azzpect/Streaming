@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-.loading-animation {
+.loader {
+    background-image: conic-gradient(#6cdff6 90deg, white 90deg);
     animation: loading 1s linear infinite;
 }
 
