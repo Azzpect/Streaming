@@ -15,8 +15,8 @@ import (
 )
 
 func GetMediaData(w http.ResponseWriter, r *http.Request) {
-	var allData []types.MediaData = []types.MediaData{}
-	encoder := json.NewEncoder(w)
+	var dirData types.Directory = types.Directory{}
+ 	encoder := json.NewEncoder(w)
 	if _, err := os.Stat("mediaData.json"); err != nil {
 		encoder.Encode(types.Response{Status: "error", Message: "No data found"})
 		return
@@ -26,12 +26,12 @@ func GetMediaData(w http.ResponseWriter, r *http.Request) {
 		encoder.Encode(types.Response{Status: "error", Message: "Error reading data."})
 		return
 	}
-	err = json.Unmarshal(jsonData, &allData)
+	err = json.Unmarshal(jsonData, &dirData)
 	if err != nil {
 		encoder.Encode(types.Response{Status: "error", Message: "Error decoding data."})
 		return
 	}
-	encoder.Encode(map[string]any{"status": "success", "data": allData})
+	encoder.Encode(map[string]any{"status": "success", "data": dirData})
 }
 
 func ProcessMedia(w http.ResponseWriter, r *http.Request) {
