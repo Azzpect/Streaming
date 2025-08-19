@@ -24,7 +24,6 @@ type MediaDataContextValue = {
   directoryData: Directory;
   fetchAllMedia: () => void;
   resetAllMedia: () => void;
-  updateMediaList: (list: Media[]) => void;
 };
 
 export function MediaContextProvider({ children }: { children: ReactNode }) {
@@ -54,10 +53,6 @@ export function MediaContextProvider({ children }: { children: ReactNode }) {
     setDirectoryData({files: {}, subDirectories: {}})
   }
 
-  function updateMediaList(list: Media[]) {
-    setAllMedia(list)
-  }
-
   function flattenDirectoryData(dir: Directory) {
     Object.values(dir.subDirectories).forEach(d => {
       flattenDirectoryData(d)
@@ -72,7 +67,7 @@ export function MediaContextProvider({ children }: { children: ReactNode }) {
   }, [directoryData])
 
   return (
-    <MediaDataContext.Provider value={{allMedia, directoryData, fetchAllMedia, resetAllMedia, updateMediaList}}>
+    <MediaDataContext.Provider value={{allMedia, directoryData, fetchAllMedia, resetAllMedia}}>
       {children}
     </MediaDataContext.Provider>
   );

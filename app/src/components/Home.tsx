@@ -7,7 +7,7 @@ import Scanner from "../assets/scanner.svg";
 import AllFiles from "./AllFiles";
 
 export default function Home() {
-  const { allMedia, fetchAllMedia, updateMediaList, resetAllMedia } =
+  const { allMedia, fetchAllMedia, resetAllMedia } =
     useContext(MediaDataContext)!;
   const [loading, setLoading] = useState<boolean>(false);
   const [allFilesYPos, setYPos] = useState<number>(0);
@@ -24,8 +24,8 @@ export default function Home() {
       });
       const data = await res.json();
       if (data.status === "error") throw new Error(data.message);
-      updateMediaList(data.data);
-      toast.success("Media processed successfully");
+      fetchAllMedia()
+      toast.success(data.message);
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
