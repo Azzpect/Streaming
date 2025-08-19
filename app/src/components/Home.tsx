@@ -37,6 +37,10 @@ export default function Home() {
     fetchAllMedia();
   }, []);
 
+  useEffect(() => {
+    console.log(allMedia)
+  }, [allMedia])
+
   return (
     <>
       <div className="flex flex-col justify-center items-center w-full overflow-hidden">
@@ -63,10 +67,8 @@ export default function Home() {
             </p>
           </div>
         ) : (
-          <Slider mediaList={allMedia} />
-        )}
-        {allMedia.length > 0 && (
           <>
+          <Slider mediaList={allMedia} />
             <div
               className="flex flex-col items-center cursor-pointer"
               onClick={() => {

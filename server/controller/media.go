@@ -66,7 +66,7 @@ func ProcessMedia(w http.ResponseWriter, r *http.Request) {
 		encoder.Encode(types.Response{Status: "error", Message: "Couldn't write media details."})
 		return
 	}
-	encoder.Encode(map[string]any{"status": "success", "data": directoryData})
+	encoder.Encode(types.Response{Status: "success", Message: "Media processed successfully."})
 }
 
 func processDir(basePath string, dirName string, collection *types.Directory, wg *sync.WaitGroup) {

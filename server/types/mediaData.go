@@ -7,5 +7,5 @@ type MediaData struct {
 
 type Directory struct {
 	Files          map[string]MediaData `json:"files"`
-	SubDirectories map[string]Directory `json:"sub-directories"`
+	SubDirectories map[string]Directory `json:"subDirectories"`
 }
