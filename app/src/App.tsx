@@ -27,7 +27,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<MainContent />} />
           <Route path="/player" element={<Player />} />
-          <Route path="/test" element={<Test />} />
         </Routes>
       </MediaContextProvider>
     </>
@@ -44,10 +43,4 @@ function MainContent() {
       {page === "settings" && <Settings />}
     </div>
   );
-}
-
-function Test() {
-  return (
-    <video src="http://localhost:8080/media/Saiyaara.mkv" className="w-screen h-screen" controls></video>
-  )
 }

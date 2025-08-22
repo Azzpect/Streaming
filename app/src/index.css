@@ -30,3 +30,8 @@ html {
         translate: 0 10px;
     }
 }
+
+
+.active-dir {
+    background-color: #87cdf9;
+}

@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useState, type ReactNode } from "react";
 import { toast } from "react-toastify";
 export const MediaDataContext = createContext<MediaDataContextValue | null>(
   null
@@ -14,7 +14,7 @@ export interface Media extends mediaData {
   name: string,
 };
 
-type Directory = {
+export type Directory = {
   files: {[key: string]: mediaData};
   subDirectories: {[key: string]: Directory};
 }
@@ -41,7 +41,10 @@ export function MediaContextProvider({ children }: { children: ReactNode }) {
       .then((data) => {
         if (data.status === "success") {
           toast.success("Media data fetched successfully.");
-          setDirectoryData(data.data)
+          setDirectoryData(() => {
+            flattenDirectoryData(data.data)
+            return data.data
+          })
         } else {
           toast.error(data.message);
           resetAllMedia()
@@ -51,6 +54,7 @@ export function MediaContextProvider({ children }: { children: ReactNode }) {
 
   function resetAllMedia() {
     setDirectoryData({files: {}, subDirectories: {}})
+    setAllMedia([])
   }
 
   function flattenDirectoryData(dir: Directory) {
@@ -61,10 +65,6 @@ export function MediaContextProvider({ children }: { children: ReactNode }) {
       setAllMedia(prev => [...prev, {...f, name: n}])
     })
   }
-
-  useEffect(() => {
-    flattenDirectoryData(directoryData)
-  }, [directoryData])
 
   return (
     <MediaDataContext.Provider value={{allMedia, directoryData, fetchAllMedia, resetAllMedia}}>

@@ -37,10 +37,6 @@ export default function Home() {
     fetchAllMedia();
   }, []);
 
-  useEffect(() => {
-    console.log(allMedia)
-  }, [allMedia])
-
   return (
     <>
       <div className="flex flex-col justify-center items-center w-full overflow-hidden">
