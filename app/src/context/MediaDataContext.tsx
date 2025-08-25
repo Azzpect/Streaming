@@ -31,6 +31,7 @@ export function MediaContextProvider({ children }: { children: ReactNode }) {
   const [directoryData, setDirectoryData] = useState<Directory>({files: {}, subDirectories: {}})
 
   function fetchAllMedia() {
+    resetAllMedia()
     fetch(`${import.meta.env.VITE_API_URL}/get-media-data`, {
       method: "GET",
       headers: {

@@ -56,6 +56,7 @@ export default function AllFiles({
         <div className="flex gap-1 items-center">
           {history.map((s, i) => (
             <p
+              key={i}
               className="text-white font-bold text-lg cursor-pointer"
               onClick={() => rollbackHistory(i)}
             >
