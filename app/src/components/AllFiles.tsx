@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { MediaDataContext } from "../context/MediaDataContext";
 import Folder from "../assets/folder.svg";
 import type { Directory } from "../context/MediaDataContext";
+import { useNavigate } from "react-router-dom";
 
 export default function AllFiles({
   setYPos,
@@ -10,10 +11,10 @@ export default function AllFiles({
 }) {
   const container = useRef<HTMLDivElement>(null);
   const { directoryData } = useContext(MediaDataContext)!;
-  const [currentDir, setCurrentDir] = useState<Directory>(directoryData)
-  const [history, setHistory] = useState<string[]>(["/"])
-  const [activeDir, setActiveDir] = useState<HTMLDivElement | null>(null)
-  const [depth, setDepth] = useState<number>(1)
+  const [currentDir, setCurrentDir] = useState<Directory>(directoryData);
+  const [history, setHistory] = useState<string[]>(["/"]);
+  const [activeDir, setActiveDir] = useState<HTMLDivElement | null>(null);
+  const [depth, setDepth] = useState<number>(1);
 
   useEffect(() => {
     if (!container.current) return;
@@ -22,27 +23,27 @@ export default function AllFiles({
   });
 
   function changeHistory(name: string) {
-    const temp = [...history]
-    let dir: Directory
+    const temp = [...history];
+    let dir: Directory;
     for (let i = 1; i <= depth; i++) {
-      dir = currentDir.subDirectories[name]
+      dir = currentDir.subDirectories[name];
     }
-    setCurrentDir(dir!)
-    setHistory([...temp, name])
-    setDepth(depth+1)
+    setCurrentDir(dir!);
+    setHistory([...temp, name]);
+    setDepth(depth + 1);
   }
 
   function rollbackHistory(newDepth: number) {
-    let temp: string[] = []
+    let temp: string[] = [];
     for (let i = 0; i <= newDepth; i++) {
-      temp[i] = history[i]
+      temp[i] = history[i];
     }
-    let dir: Directory = directoryData
+    let dir: Directory = directoryData;
     for (let i = 1; i <= newDepth; i++) {
-      dir = dir.subDirectories[history[i]]
+      dir = dir.subDirectories[history[i]];
     }
-    setCurrentDir(dir)
-    setHistory(temp)
+    setCurrentDir(dir);
+    setHistory(temp);
   }
 
   return (
@@ -53,37 +54,70 @@ export default function AllFiles({
       <h2 className="text-white text-lg font-bold">All Files</h2>
       <div className="self-start p-20 flex flex-col gap-5">
         <div className="flex gap-1 items-center">
-            { history.map((s, i) => <p className="text-white font-bold text-lg cursor-pointer" onClick={() => rollbackHistory(i)}>{ history.length - 1 === i ? <span className="hover:underline">{s}</span>: <span><span className="hover:underline">{s}</span>{`>`}</span>}</p>) }
+          {history.map((s, i) => (
+            <p
+              className="text-white font-bold text-lg cursor-pointer"
+              onClick={() => rollbackHistory(i)}
+            >
+              {history.length - 1 === i ? (
+                <span className="hover:underline">{s}</span>
+              ) : (
+                <span>
+                  <span className="hover:underline">{s}</span>
+                  {`>`}
+                </span>
+              )}
+            </p>
+          ))}
         </div>
         <div className="flex gap-10 items-center">
-                { 
-                    Object.keys(currentDir.subDirectories).map((n, i) => {
-                    return <Directory key={i} name={n} activeDir={activeDir} setActiveDir={setActiveDir} changeHistory={changeHistory} />;
-                    })
-                }
-                {
-                    Object.entries(currentDir.files).map(([n, d], i) => {
-                    return <MediaCard key={i} name={n} thumbnail={d.thumbnail} />;
-                    })
-                }
+          {Object.keys(currentDir.subDirectories).map((n, i) => {
+            return (
+              <Directory
+                key={i}
+                name={n}
+                activeDir={activeDir}
+                setActiveDir={setActiveDir}
+                changeHistory={changeHistory}
+              />
+            );
+          })}
+          {Object.entries(currentDir.files).map(([n, d], i) => {
+            return <MediaCard key={i} name={n} thumbnail={d.thumbnail} />;
+          })}
         </div>
       </div>
     </div>
   );
 }
 
-function Directory({ name, activeDir, setActiveDir, changeHistory }: { name: string, activeDir: HTMLDivElement | null, setActiveDir: React.Dispatch<React.SetStateAction<HTMLDivElement | null>>, changeHistory: (name: string) => void }) {
-
-    const self = useRef<HTMLDivElement>(null)
+function Directory({
+  name,
+  activeDir,
+  setActiveDir,
+  changeHistory,
+}: {
+  name: string;
+  activeDir: HTMLDivElement | null;
+  setActiveDir: React.Dispatch<React.SetStateAction<HTMLDivElement | null>>;
+  changeHistory: (name: string) => void;
+}) {
+  const self = useRef<HTMLDivElement>(null);
 
   return (
-    <div ref={self} className={`flex flex-col items-center gap-2 cursor-pointer directory p-5 rounded-xl ${self.current == activeDir ? "active-dir" : ""}`} onClick={() => {
+    <div
+      ref={self}
+      className={`flex flex-col items-center gap-2 cursor-pointer directory p-5 rounded-xl ${
+        self.current == activeDir ? "active-dir" : ""
+      }`}
+      onClick={() => {
         if (self.current == activeDir) {
-            changeHistory(name)
+          changeHistory(name);
         } else {
-            setActiveDir(self.current!)
+          setActiveDir(self.current!);
         }
-    }}>
+      }}
+    >
       <img src={Folder} alt="" />
       <p className="text-white font-bold text-lg">{name}</p>
     </div>
@@ -91,11 +125,23 @@ function Directory({ name, activeDir, setActiveDir, changeHistory }: { name: str
 }
 
 function MediaCard({ name, thumbnail }: { name: string; thumbnail: string }) {
+  const { allMedia } = useContext(MediaDataContext)!;
+  let index: number;
+  const navigate = useNavigate();
   const parts = window.location.href.split(":");
   const MEDIA_URL =
     "http:" +
     parts.filter((_, i) => i !== parts.length - 1 && i !== 0).join("") +
     ":8100";
+
+  useEffect(() => {
+    for(let i = 0; i < allMedia.length; i++) {
+      if (allMedia[i].thumbnail === thumbnail) {
+        index = i;
+        break;
+      }
+    }
+  }, []);
 
   return (
     <div
@@ -105,6 +151,9 @@ function MediaCard({ name, thumbnail }: { name: string; thumbnail: string }) {
         src={new URL(thumbnail, MEDIA_URL).href}
         alt={name}
         className="w-full h-full"
+        onClick={() => {
+          navigate("/player?id=" + index);
+        }}
       />
       <p className="text-white font-bold text-lg text-center">{name}</p>
     </div>
