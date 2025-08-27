@@ -23,7 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
-
+linuxprod
+winprod
 *.mp4
 *.json
 thumbnails
