@@ -27,5 +27,11 @@ linuxprod
 winprod
 *.mp4
 *.json
+*.zip
 thumbnails
 .env
+web
+prod
+linuxprod
+winprod
+bin

@@ -4,23 +4,34 @@ export const MediaDataContext = createContext<MediaDataContextValue | null>(
   null
 );
 
-export type Media = {
-  name: string;
+
+type mediaData = {
   thumbnail: string;
   path: string;
+}
+
+export interface Media extends mediaData {
+  name: string,
 };
+
+export type Directory = {
+  files: {[key: string]: mediaData};
+  subDirectories: {[key: string]: Directory};
+}
 
 type MediaDataContextValue = {
   allMedia: Media[];
+  directoryData: Directory;
   fetchAllMedia: () => void;
   resetAllMedia: () => void;
-  updateMediaList: (list: Media[]) => void;
 };
 
 export function MediaContextProvider({ children }: { children: ReactNode }) {
   const [allMedia, setAllMedia] = useState<Media[]>([]);
+  const [directoryData, setDirectoryData] = useState<Directory>({files: {}, subDirectories: {}})
 
   function fetchAllMedia() {
+    resetAllMedia()
     fetch(`${import.meta.env.VITE_API_URL}/get-media-data`, {
       method: "GET",
       headers: {
@@ -31,24 +42,33 @@ export function MediaContextProvider({ children }: { children: ReactNode }) {
       .then((data) => {
         if (data.status === "success") {
           toast.success("Media data fetched successfully.");
-          setAllMedia(data.data);
+          setDirectoryData(() => {
+            flattenDirectoryData(data.data)
+            return data.data
+          })
         } else {
           toast.error(data.message);
-          setAllMedia([])
+          resetAllMedia()
         }
       });
   }
 
   function resetAllMedia() {
+    setDirectoryData({files: {}, subDirectories: {}})
     setAllMedia([])
   }
 
-  function updateMediaList(list: Media[]) {
-    setAllMedia(list)
+  function flattenDirectoryData(dir: Directory) {
+    Object.values(dir.subDirectories).forEach(d => {
+      flattenDirectoryData(d)
+    })
+    Object.entries(dir.files).forEach(([n, f]) => {
+      setAllMedia(prev => [...prev, {...f, name: n}])
+    })
   }
 
   return (
-    <MediaDataContext.Provider value={{allMedia, fetchAllMedia, resetAllMedia, updateMediaList}}>
+    <MediaDataContext.Provider value={{allMedia, directoryData, fetchAllMedia, resetAllMedia}}>
       {children}
     </MediaDataContext.Provider>
   );

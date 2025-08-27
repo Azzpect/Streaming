@@ -11,15 +11,18 @@ export default function Player() {
     const id = searchParams.get("id")
     const { allMedia } = useContext(MediaDataContext)!
     const navigate = useNavigate()
+    const parts = window.location.href.split(":")
+    const MEDIA_URL = "http:" + parts.filter((_, i) => i !== parts.length - 1 && i !== 0).join("")+":8100"
 
     useEffect(() => {
         if (!id) navigate("/")
         let parsedId = parseInt(id as string)
         if(isNaN(parsedId)) navigate("/")
+        if(allMedia.length === 0) navigate("/")
         const media = allMedia[parsedId]
         
         if (player.current) {
-            player.current.src = new URL(media.path, import.meta.env.VITE_MEDIA_URL).href
+            player.current.src = new URL(media.path, MEDIA_URL).href
         }
     }, [])
 

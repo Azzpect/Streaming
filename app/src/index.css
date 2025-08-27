@@ -1,7 +1,17 @@
 @import "tailwindcss";
 
-.loading-animation {
+
+html {
+    scroll-behavior: smooth;
+}
+
+.loader {
+    background-image: conic-gradient(#6cdff6 90deg, white 90deg);
     animation: loading 1s linear infinite;
+}
+
+.arrow-bounce {
+    animation: arrow-bounce 600ms linear infinite;
 }
 
 
@@ -11,4 +21,17 @@
     } to {
         transform: rotateZ(360deg);
     }
+}
+
+@keyframes arrow-bounce {
+    from {
+        translate: 0 5px;
+    } to {
+        translate: 0 10px;
+    }
+}
+
+
+.active-dir {
+    background-color: #87cdf9;
 }

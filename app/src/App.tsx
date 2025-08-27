@@ -27,7 +27,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<MainContent />} />
           <Route path="/player" element={<Player />} />
-          <Route path="/test" element={<Test />} />
         </Routes>
       </MediaContextProvider>
     </>
@@ -38,16 +37,10 @@ function MainContent() {
   const [page, setPage] = useState<"home" | "settings">("home");
 
   return (
-    <div className="w-screen h-screen grid grid-rows-[12vh_1fr] bg-gray-900">
+    <div className="w-screen grid grid-rows-[12vh_1fr]">
       <Navbar setPage={setPage} />
       {page === "home" && <Home />}
       {page === "settings" && <Settings />}
     </div>
   );
-}
-
-function Test() {
-  return (
-    <video src="http://localhost:8080/media/Saiyaara.mkv" className="w-screen h-screen" controls></video>
-  )
 }
