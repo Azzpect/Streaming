@@ -114,6 +114,7 @@ function Directory({
       onClick={() => {
         if (self.current == activeDir) {
           changeHistory(name);
+          setActiveDir(null);
         } else {
           setActiveDir(self.current!);
         }
