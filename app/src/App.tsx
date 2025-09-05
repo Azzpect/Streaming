@@ -37,7 +37,7 @@ function MainContent() {
   const [page, setPage] = useState<"home" | "settings">("home");
 
   return (
-    <div className="w-screen grid grid-rows-[12vh_1fr]">
+    <div className="w-screen grid grid-rows-[8vh_1fr]">
       <Navbar setPage={setPage} />
       {page === "home" && <Home />}
       {page === "settings" && <Settings />}
