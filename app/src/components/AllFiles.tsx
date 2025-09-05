@@ -52,7 +52,7 @@ export default function AllFiles({
       className="flex flex-col items-center gap-5 w-screen min-h-screen mt-[40vh]"
     >
       <h2 className="text-white text-lg font-bold">All Files</h2>
-      <div className="self-start p-20 flex flex-col gap-5">
+      <div className="self-start p-2 md:p-20 flex flex-col gap-5">
         <div className="flex gap-1 items-center">
           {history.map((s, i) => (
             <p
@@ -71,7 +71,7 @@ export default function AllFiles({
             </p>
           ))}
         </div>
-        <div className="flex gap-10 items-center">
+        <div className="flex gap-5 md:gap-10 items-center flex-wrap">
           {Object.keys(currentDir.subDirectories).map((n, i) => {
             return (
               <Directory
@@ -108,7 +108,7 @@ function Directory({
   return (
     <div
       ref={self}
-      className={`flex flex-col items-center gap-2 cursor-pointer directory p-5 rounded-xl ${
+      className={`flex flex-col items-center gap-2 cursor-pointer p-5 rounded-xl ${
         self.current == activeDir ? "active-dir" : ""
       }`}
       onClick={() => {
@@ -147,17 +147,17 @@ function MediaCard({ name, thumbnail }: { name: string; thumbnail: string }) {
 
   return (
     <div
-      className={`w-45 h-60 flex flex-col items-center justify-center cursor-pointer`}
+      className={`w-15 md:w-45 flex flex-col items-center justify-center cursor-pointer overflow-scroll`}
     >
       <img
         src={new URL(thumbnail, MEDIA_URL).href}
         alt={name}
-        className="w-full h-full"
+        className="h-20 md:h-60 aspect-square"
         onClick={() => {
           navigate("/player?id=" + index);
         }}
       />
-      <p className="text-white font-bold text-lg text-center">{name}</p>
+      <p className="text-white font-bold text-sm md:text-lg text-center">{name}</p>
     </div>
   );
 }
