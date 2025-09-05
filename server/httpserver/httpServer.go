@@ -14,12 +14,9 @@ import (
 func StartHTTPServer() {
 	router := mux.NewRouter()
 
-	//router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-	//	http.ServeFile(w, r, "./web/index.html")
-	//})
-	router.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, this is the Media Server"))
-	}).Methods("GET")
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/index.html")
+	})
 
 	router.HandleFunc("/getDirInfo", controller.GetDirInfo).Methods("GET")
 	router.HandleFunc("/get-user-data", controller.GetUserData).Methods("GET")
