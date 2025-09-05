@@ -41,7 +41,7 @@ export default function Settings() {
   }, [userData])
 
   return (
-    <div className="flex flex-col justify-self-center w-4/5 h-screen p-10">
+    <div className="flex flex-col justify-self-center w-full md:w-4/5 h-screen p-5 mt-30 md:mt-15 md:p-10">
       <label htmlFor="path" className="text-lg text-white self-start">
         Your movies directory:
       </label>
@@ -49,7 +49,7 @@ export default function Settings() {
         <input
           type="text"
           id="path"
-          className="border-white border-2 outline-none py-1 px-3 w-2/4 text-white text-lg"
+          className="border-white border-2 outline-none py-1 px-3 w-3/4 md:w-2/4 text-white text-lg"
           value={tempFolderPath === userData?.mediaPath ? userData.mediaPath : tempFolderPath}
           readOnly
         />
@@ -129,7 +129,7 @@ function FileSystem({
   }, [])
 
   return (
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-[20vw] bg-white flex flex-col p-5">
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-[80vw] md:min-w-[20vw] bg-white flex flex-col p-5">
       <X
         className="absolute top-0 right-0 cursor-pointer"
         onClick={() => setShowFolderPicker(false)}
