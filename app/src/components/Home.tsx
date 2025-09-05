@@ -110,10 +110,10 @@ function Slider({ mediaList }: { mediaList: Media[] }) {
   }, [mediaList]);
 
   return (
-    <section ref={window} className="w-full h-[70vh] overflow-hidden relative">
+    <section ref={window} className="w-full h-[50vh] md:h-[70vh] overflow-hidden relative">
       <div
         ref={slider}
-        className="flex items-center h-full gap-20 absolute top-0 left-1/2 -translate-x-1/2 transition-transform duration-300 ease-linear"
+        className="flex items-center h-full gap-8 md:gap-20 absolute top-0 left-1/2 -translate-x-1/2 transition-transform duration-300 ease-linear"
       >
         {mediaList.map((m, i) => (
           <MediaCard
@@ -182,7 +182,7 @@ function MediaCard({
   return (
     <div
       ref={child}
-      className={`w-45 h-60 flex flex-col items-center justify-center cursor-pointer transition-transform duration-300 ease-liear`}
+      className={`w-15 h-20 md:w-45 md:h-60 flex flex-col items-center justify-center cursor-pointer transition-transform duration-300 ease-liear`}
       onClick={slide}
     >
       <img

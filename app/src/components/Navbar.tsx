@@ -27,7 +27,7 @@ export default function Navbar({
           </li>
         </nav>
       </div>
-      <div className="w-4/5 md:w-96 h-10 self-end absolute left-1/2 -translate-x-1/2 top-20">
+      <div className="w-4/5 md:w-96 h-10 self-end absolute left-1/2 -translate-x-1/2 top-30 md:top-20">
         <input
           type="text"
           className="w-full h-full p-3 pl-5 outline-none text-lg text-white border-2 border-white rounded-4xl"
