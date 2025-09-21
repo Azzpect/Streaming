@@ -15,12 +15,25 @@ export default function Player() {
     const MEDIA_URL = "http:" + parts.filter((_, i) => i !== parts.length - 1 && i !== 0).join("")+":8100"
 
     useEffect(() => {
-        if (!id) navigate("/")
+        if (!id) {
+            navigate("/")
+            return
+        }
         let parsedId = parseInt(id as string)
-        if(isNaN(parsedId)) navigate("/")
-        if(allMedia.length === 0) navigate("/")
+        if(isNaN(parsedId)) {
+            navigate("/")
+            return
+        }
+        if(allMedia.length === 0) {
+            navigate("/")
+            return
+        }
         const media = allMedia[parsedId]
-        
+
+        if (media === undefined) {
+            navigate("/")
+            return
+        }
         if (player.current) {
             player.current.src = new URL(media.path, MEDIA_URL).href
         }
