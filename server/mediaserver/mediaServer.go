@@ -1,14 +1,14 @@
 package mediaserver
 
 import (
-	"net/http"
-	"fmt"
-	"time"
 	"encoding/json"
+	"fmt"
+	"github.com/gorilla/mux"
+	"net/http"
 	"os"
 	"streamer/types"
 	"strings"
-	"github.com/gorilla/mux"
+	"time"
 )
 
 var mediaServerInstance *http.Server = nil
@@ -25,15 +25,25 @@ func StartMediaServer() {
 
 	var userData types.UserData
 
-	jsonData, err := os.ReadFile("userData.json")
-	if err != nil {
-		fmt.Println("Error reading user data file.")
-		return
-	}
-	err = json.Unmarshal(jsonData, &userData)
-	if err != nil {
-		fmt.Println("Error decoding user data file.")
-		return
+	if _, err := os.Stat("userData.json"); err != nil {
+		userData = types.UserData{MediaPath: os.Getenv("HOME") + "/Downloads"}
+		data, err := json.Marshal(userData)
+		if err != nil {
+			fmt.Println("failed to create default user data file")
+			return
+		}
+		os.WriteFile("userData.json", data, 0644)
+	} else {
+		jsonData, err := os.ReadFile("userData.json")
+		if err != nil {
+			fmt.Println("Error reading user data file.")
+			return
+		}
+		err = json.Unmarshal(jsonData, &userData)
+		if err != nil {
+			fmt.Println("Error decoding user data file.")
+			return
+		}
 	}
 
 	if strings.Trim(userData.MediaPath, " ") == "" {
@@ -62,3 +72,4 @@ func StartMediaServer() {
 	}()
 
 }
+
