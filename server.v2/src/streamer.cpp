@@ -42,17 +42,29 @@ void Streamer::Streamer::StartServer() {
             res.set_content(j.dump(1), "application/json");
           });
 
-  std::cout << "Starting http server on port " << this->userData.port << std::endl;
+  std::cout << "Starting http server on port " << this->userData.port
+            << std::endl;
   if (!svr.listen("0.0.0.0", this->userData.port)) {
-    std::cerr << "Couldn't start http server on port " << this->userData.port << std::endl;
+    std::cerr << "Couldn't start http server on port " << this->userData.port
+              << std::endl;
   }
 }
 
 void Streamer::to_json(nlohmann::json &j, const UserData &u) {
-  j = nlohmann::json{{"mediaPath", u.mediaPath}, {"port", u.port}};
+  j = nlohmann::json{
+      {"mediaPath", u.mediaPath}, {"port", u.port}, {"mediaData", u.mediaData}};
 }
 
 void Streamer::from_json(const nlohmann::json &j, UserData &u) {
   j.at("mediaPath").get_to(u.mediaPath);
   j.at("port").get_to(u.port);
+}
+
+void Streamer::to_json(nlohmann::json &j, const MediaData &m) {
+  j = nlohmann::json{{"name", m.name}, {"path", m.path}};
+}
+
+void Streamer::from_json(const nlohmann::json &j, MediaData &m) {
+  j.at("name").get_to(m.name);
+  j.at("path").get_to(m.path);
 }
