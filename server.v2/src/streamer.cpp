@@ -1,9 +1,10 @@
 #include "streamer.hpp"
+#include "httplib.h"
 #include "nlohmann/json.hpp"
 #include <filesystem>
 #include <fstream>
 
-Streamer::Streamer::Streamer() {
+StreamerNS::Streamer::Streamer() {
   if (!std::filesystem::exists("userData.json")) {
     std::cout << "User data file doesn't exist. Creating a new file..."
               << std::endl;
@@ -35,10 +36,24 @@ Streamer::Streamer::Streamer() {
   }
 }
 
-void Streamer::Streamer::StartServer() {
+void StreamerNS::Streamer::StartServer() {
   svr.Get("/api/get_user_data",
           [this](const httplib::Request &, httplib::Response &res) {
             nlohmann::json j = this->userData;
+            res.set_content(j.dump(1), "application/json");
+          });
+
+  svr.Get("/api/get_dir_info",
+          [this](const httplib::Request &req, httplib::Response &res) {
+            nlohmann::json j;
+            if (!req.has_param("path")) {
+              res.status = httplib::StatusCode::BadRequest_400;
+              j["message"] = "no path is given";
+              res.set_content(j.dump(1), "application/json");
+              return;
+            }
+            res.status = httplib::StatusCode::OK_200;
+            j = getDirInfo(req.get_param_value("path"));
             res.set_content(j.dump(1), "application/json");
           });
 
@@ -50,21 +65,13 @@ void Streamer::Streamer::StartServer() {
   }
 }
 
-void Streamer::to_json(nlohmann::json &j, const UserData &u) {
-  j = nlohmann::json{
-      {"mediaPath", u.mediaPath}, {"port", u.port}, {"mediaData", u.mediaData}};
-}
+std::vector<StreamerNS::Dir>
+StreamerNS::Streamer::getDirInfo(const std::string &path) {
+  std::vector<StreamerNS::Dir> items;
 
-void Streamer::from_json(const nlohmann::json &j, UserData &u) {
-  j.at("mediaPath").get_to(u.mediaPath);
-  j.at("port").get_to(u.port);
-}
-
-void Streamer::to_json(nlohmann::json &j, const MediaData &m) {
-  j = nlohmann::json{{"name", m.name}, {"path", m.path}};
-}
-
-void Streamer::from_json(const nlohmann::json &j, MediaData &m) {
-  j.at("name").get_to(m.name);
-  j.at("path").get_to(m.path);
+  for (const auto &item : std::filesystem::directory_iterator(path)) {
+    items.push_back(StreamerNS::Dir{item.path().filename().string(),
+                                    item.is_directory() ? "dir" : "file"});
+  }
+  return items;
 }

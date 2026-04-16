@@ -1,7 +1,6 @@
-
-
 #include "streamer.hpp"
+
 int main() {
-  Streamer::Streamer streamer;  
+  StreamerNS::Streamer streamer;
   streamer.StartServer();
 }

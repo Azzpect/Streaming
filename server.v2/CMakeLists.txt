@@ -9,6 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_executable(streamer
   ${CMAKE_SOURCE_DIR}/src/main.cpp
   ${CMAKE_SOURCE_DIR}/src/streamer.cpp
+  ${CMAKE_SOURCE_DIR}/src/json.cpp
 )
 
 target_compile_options(streamer PRIVATE -Wall -Wextra -Werror -Wno-pedantic)
