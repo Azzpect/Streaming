@@ -1,5 +1,6 @@
 <script lang="ts">
   import { userData } from "../userData";
+  import { toast } from "../toast";
 
   let temp = $state({ mediaPath: $userData.mediaPath, port: $userData.port });
 
@@ -31,11 +32,11 @@
       body: JSON.stringify({ path: temp.mediaPath, port: temp.port }),
     }).then((res) => {
       if (!res.ok) {
-        console.error("Couldn't save data");
+        $toast.error("Couldn't save user data.")
       } else {
-        console.log("user data saved");
         $userData.mediaPath = temp.mediaPath;
         $userData.port = temp.port;
+        $toast.success("User data saved.")
       }
     });
   }
@@ -93,7 +94,12 @@
         {#each children as item}
           <button
             class="flex cursor-pointer hover:bg-[#1d2f43] hover:text-white font-semibold p-2 rounded-lg gap-2"
-            onclick={() => getDirInfo(temp.mediaPath === "/" ? temp.mediaPath + item : temp.mediaPath + "/" + item)}
+            onclick={() =>
+              getDirInfo(
+                temp.mediaPath === "/"
+                  ? temp.mediaPath + item
+                  : temp.mediaPath + "/" + item,
+              )}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

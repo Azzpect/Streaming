@@ -1,10 +1,14 @@
 <script lang="ts">
+    import { toast } from "./toast";
   import { userData } from "./userData";
 
   function scan() {
     fetch("http://127.0.0.1:8000/api/scan")
       .then((res) => res.json())
-      .then((data) => userData.set({ ...$userData, mediaData: data }));
+      .then((data) => {
+        userData.set({ ...$userData, mediaData: data });
+        $toast.success("Directory scan complete for media.")
+      });
   }
 </script>
 
@@ -45,8 +49,7 @@
     >
     <button
       class="gradient-bg text-white font-bold text-lg px-5 py-2 rounded-xl cursor-pointer"
-      onclick={() => scan()}
-      >Scan</button
+      onclick={() => scan()}>Scan</button
     >
   </div>
 </nav>

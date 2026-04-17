@@ -3,6 +3,7 @@
   import "./style.css";
   import { onMount } from "svelte";
   import { userData } from "./userData";
+    import Message from "./Message.svelte";
 
   let { children } = $props();
 
@@ -16,5 +17,6 @@
 </script>
 
 <Navbar />
+<Message />
 
 {@render children()}
