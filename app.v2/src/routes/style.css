@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+body {
+  background-color: #1d2f43;
+}
+
+
+.gradient-text {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  @apply bg-gradient-to-r from-[#e71a1a] to-[#e7c71a];
+}
+
+.gradient-bg {
+  @apply bg-gradient-to-r from-[#e71a1a] to-[#e7c71a];
+}
+
+nav a:hover {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  @apply bg-gradient-to-r from-[#e71a1a] to-[#e7c71a];
+}
