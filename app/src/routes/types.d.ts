@@ -6,6 +6,7 @@ export type UserData = {
 
 type Media = {
   name: string;
-  path: string;
+  thumbnail: string;
+  media: string;
 }
 

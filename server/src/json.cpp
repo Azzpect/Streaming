@@ -12,10 +12,11 @@ void StreamerNS::from_json(const nlohmann::json &j, UserData &u) {
 }
 
 void StreamerNS::to_json(nlohmann::json &j, const MediaData &m) {
-  j = nlohmann::json{{"name", m.name}, {"path", m.path}};
+  j = nlohmann::json{{"name", m.name}, {"thumbnail", m.thumbnail}, {"media", m.media}};
 }
 
 void StreamerNS::from_json(const nlohmann::json &j, MediaData &m) {
   j.at("name").get_to(m.name);
-  j.at("path").get_to(m.path);
+  j.at("thumbnail").get_to(m.thumbnail);
+  j.at("media").get_to(m.media);
 }

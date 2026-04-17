@@ -8,7 +8,8 @@
 namespace StreamerNS {
 struct MediaData {
   std::string name;
-  std::string path;
+  std::string thumbnail;
+  std::string media;
 };
 struct UserData {
   std::string mediaPath = std::getenv("HOME");
@@ -20,17 +21,18 @@ class Streamer {
 private:
   std::string userDataFile = "userData.json";
   httplib::Server svr;
-  std::vector<std::string> getDirInfo(const std::string&);
+  std::vector<std::string> getDirInfo(const std::string &);
+  void SaveUserData();
+  void Scan();
 
 public:
   UserData userData;
   Streamer();
   void StartServer();
-  void SaveUserData();
 };
 void to_json(nlohmann::json &, const UserData &);
 void from_json(const nlohmann::json &, UserData &);
 void to_json(nlohmann::json &, const MediaData &);
 void from_json(const nlohmann::json &, MediaData &);
 
-}; // namespace Streamer
+}; // namespace StreamerNS

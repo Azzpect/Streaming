@@ -39,6 +39,12 @@
       }
     });
   }
+  function prevDir() {
+    let parts = temp.mediaPath.split("/");
+    parts.pop();
+    let path = parts.join("/");
+    getDirInfo(path === "" ? "/" : path);
+  }
 </script>
 
 <div class="w-[60%] h-screen m-auto flex flex-col gap-5 mt-28 relative">
@@ -47,7 +53,7 @@
     type="number"
     class="w-[60%] h-8 bg-white rounded-xl outline-none p-3"
     value={temp.port}
-    onchange={(e) => temp.port = parseInt(e.currentTarget?.value) }
+    onchange={(e) => (temp.port = parseInt(e.currentTarget?.value))}
   />
   <span class="text-white text-lg font-semibold">Media Directory</span>
   <div class="w-full flex items-center gap-5">
@@ -66,13 +72,28 @@
     <div
       class="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[60%] bg-white flex flex-col p-5 gap-2 rounded-xl"
     >
-      <h4 class="text-lg font-bold">{temp.mediaPath}</h4>
+      <div class="flex gap-2 items-center">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="cursor-pointer"
+          onclick={() => prevDir()}><path d="m15 18-6-6 6-6" /></svg
+        >
+        <h4 class="text-lg font-bold">{temp.mediaPath}</h4>
+      </div>
       <hr />
       <div class="flex flex-col overflow-y-scroll w-full h-[80%]">
         {#each children as item}
           <button
             class="flex cursor-pointer hover:bg-[#1d2f43] hover:text-white font-semibold p-2 rounded-lg gap-2"
-            onclick={() => getDirInfo(temp.mediaPath + "/" + item)}
+            onclick={() => getDirInfo(temp.mediaPath === "/" ? temp.mediaPath + item : temp.mediaPath + "/" + item)}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

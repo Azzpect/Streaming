@@ -9,6 +9,6 @@ This app is designed to host all media files in the host machine and make the av
 
 
 ## Requirements
-- Login to OBDB and generate an API key. Then save the key and the api url in a .env file. Ex - 
+- Login to OMDB and generate an API key. Then save the key and the api url in a .env file. Ex - 
     `API_KEY=your_api_key`
     `API_URL=http://www.omdbapi.com`
