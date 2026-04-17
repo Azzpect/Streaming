@@ -19,12 +19,3 @@ void StreamerNS::from_json(const nlohmann::json &j, MediaData &m) {
   j.at("name").get_to(m.name);
   j.at("path").get_to(m.path);
 }
-
-void StreamerNS::to_json(nlohmann::json &j, const Dir &d) {
-  j = nlohmann::json{{"name", d.name}, {"type", d.type}};
-}
-
-void StreamerNS::from_json(const nlohmann::json &j, Dir &d) {
-  j.at("name").get_to(d.name);
-  j.at("type").get_to(d.type);
-}
