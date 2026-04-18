@@ -116,6 +116,9 @@ std::vector<std::string>
 StreamerNS::Streamer::getDirInfo(const std::string &path) {
   std::vector<std::string> items;
 
+  if (!std::filesystem::exists(path))
+    return items;
+
   for (const auto &item : std::filesystem::directory_iterator(path)) {
     if (item.is_directory()) {
       items.push_back(item.path().filename().string());
@@ -136,24 +139,27 @@ void StreamerNS::Streamer::Scan() {
       std::filesystem::is_directory("thumbnails")) {
     std::filesystem::remove_all("thumbnails");
   }
-  std::filesystem::create_directory("thumbnails");
-  for (const auto &item :
-       std::filesystem::directory_iterator(userData.mediaPath)) {
-    if (!item.is_directory()) {
-      auto ext = item.path().extension();
-      std::string filename = item.path().filename();
-      if (ext == ".mp4" || ext == ".mkv" || ext == ".avi" || ext == ".mov") {
-        std::string path = item.path();
-        auto now = std::chrono::system_clock::now().time_since_epoch();
-        auto ms =
-            std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
-        auto thumbnail = std::format("thumbnails/{}.jpg", ms);
-        std::string cmd = std::format("./bin/ffmpeg -ss 00:00:10 -i \"{}\" "
-                                      "-frames:v 1 {}",
-                                      path, thumbnail);
-        std::system(cmd.c_str());
-        userData.mediaData.push_back(MediaData{filename, "/media/" + thumbnail,
-                                               "/media/movies/" + filename});
+  if (std::filesystem::exists(userData.mediaPath)) {
+
+    std::filesystem::create_directory("thumbnails");
+    for (const auto &item :
+         std::filesystem::directory_iterator(userData.mediaPath)) {
+      if (!item.is_directory()) {
+        auto ext = item.path().extension();
+        std::string filename = item.path().filename();
+        if (ext == ".mp4" || ext == ".mkv" || ext == ".avi" || ext == ".mov") {
+          std::string path = item.path();
+          auto now = std::chrono::system_clock::now().time_since_epoch();
+          auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now)
+                        .count();
+          auto thumbnail = std::format("thumbnails/{}.jpg", ms);
+          std::string cmd = std::format("./bin/ffmpeg -ss 00:00:10 -i \"{}\" "
+                                        "-frames:v 1 {}",
+                                        path, thumbnail);
+          std::system(cmd.c_str());
+          userData.mediaData.push_back(MediaData{
+              filename, "/media/" + thumbnail, "/media/movies/" + filename});
+        }
       }
     }
   }

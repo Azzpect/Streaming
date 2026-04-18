@@ -3,7 +3,8 @@
   import "./style.css";
   import { onMount } from "svelte";
   import { userData } from "./userData";
-    import Message from "./Message.svelte";
+  import Message from "./Message.svelte";
+  import { filteredMovies } from "./userData";
 
   let { children } = $props();
 
@@ -14,9 +15,17 @@
         userData.set(data);
       });
   });
+
+  $effect(() => {
+    userData.subscribe((u) => filteredMovies.set(u.mediaData));
+  });
 </script>
 
 <Navbar />
 <Message />
+
+<svelte:head>
+  <title>MovieMOO</title>
+</svelte:head>
 
 {@render children()}

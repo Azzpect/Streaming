@@ -1,14 +1,22 @@
 <script lang="ts">
-    import { toast } from "./toast";
-  import { userData } from "./userData";
+  import { toast } from "./toast";
+  import { filteredMovies, userData } from "./userData";
 
   function scan() {
     fetch("http://127.0.0.1:8000/api/scan")
       .then((res) => res.json())
       .then((data) => {
         userData.set({ ...$userData, mediaData: data });
-        $toast.success("Directory scan complete for media.")
+        $toast.success("Directory scan complete for media.");
       });
+  }
+
+  function search(val: string) {
+    filteredMovies.set(
+      $userData.mediaData.filter((v) =>
+        v.name.toLowerCase().includes(val.toLowerCase()),
+      ),
+    );
   }
 </script>
 
@@ -22,6 +30,7 @@
         type="text"
         class="bg-white outline-none w-full h-full p-2 rounded-xl"
         placeholder="Search movies here..."
+        onkeydown={(e) => search(e.currentTarget.value)}
       />
       <svg
         xmlns="http://www.w3.org/2000/svg"
