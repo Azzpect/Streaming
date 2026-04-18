@@ -4,6 +4,31 @@ body {
   background-color: #1d2f43;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.loading {
+  animation: rotate 1s linear infinite;
+  @apply w-4 md:w-6 aspect-square border-t-white border-t-5 rounded-full;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 .gradient-text {
   background-clip: text;

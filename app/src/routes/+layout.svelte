@@ -9,7 +9,7 @@
   let { children } = $props();
 
   onMount(() => {
-    fetch("http://localhost:8000/api/get_user_data")
+    fetch("http://127.0.0.1:8000/api/get_user_data")
       .then((res) => res.json())
       .then((data) => {
         userData.set(data);
